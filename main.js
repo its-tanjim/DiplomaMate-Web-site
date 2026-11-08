@@ -1,7 +1,7 @@
 /**
  * DiplomaMate - Main Application Controller
- * Handles Three.js 3D Background, Leaflet Interactive Map, College Drawer,
- * 3D Department & Booklist Explorer, CGPA Calculator, and UI Interactions.
+ * Handles Three.js 3D Background, Leaflet Interactive Map (OpenStreetMap free tile layer),
+ * College Drawer, 3D Department & Booklist Explorer, CGPA Calculator, and UI Interactions.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,7 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedSemester: 1,
     audioEnabled: true,
     is3DMap: true,
+    isCyberMap: true,
     map: null,
+    tileLayer: null,
     markers: [],
     polytechnics: typeof POLYTECHNIC_DATA !== "undefined" ? POLYTECHNIC_DATA : []
   };
@@ -230,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 4. Interactive Bangladesh Map (Leaflet.js)
+  // 4. Interactive Bangladesh Map (Leaflet.js + 100% Free OpenStreetMap)
   // ==========================================
   function initBangladeshMap() {
     const mapElement = document.getElementById("bangladesh-map");
@@ -242,18 +244,33 @@ document.addEventListener("DOMContentLoaded", () => {
       center: bdCenter,
       zoom: 7,
       minZoom: 6,
-      maxZoom: 16,
+      maxZoom: 18,
       zoomControl: true,
-      attributionControl: false
+      attributionControl: true
     });
 
-    // Dark Tile Layer (CartoDB Dark Matter)
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd",
-      maxZoom: 19
+    // Completely free Leaflet OpenStreetMap tile layer (no paid provider, no API key required)
+    const osmTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     AppState.map = map;
+    AppState.tileLayer = osmTileLayer;
+    AppState.isCyberMap = true;
+
+    // Trigger size invalidation immediately to ensure error-free tile rendering
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 600);
+
+    window.addEventListener("resize", () => {
+      if (AppState.map) AppState.map.invalidateSize();
+    });
+
     renderMapMarkers();
 
     // Map 3D Perspective Toggle Button
@@ -273,7 +290,26 @@ document.addEventListener("DOMContentLoaded", () => {
           toggle3DBtn.innerHTML = `<i data-lucide="square" class="w-4 h-4 text-slate-400"></i><span class="text-xs font-semibold">3D Tilt: OFF</span>`;
         }
         lucide.createIcons();
-        setTimeout(() => map.invalidateSize(), 300);
+        setTimeout(() => map.invalidateSize(), 350);
+      });
+    }
+
+    // Map Theme Color Mode Toggle (Cyber Dark / Standard OSM)
+    const toggleThemeBtn = document.getElementById("toggle-map-theme-btn");
+    if (toggleThemeBtn) {
+      toggleThemeBtn.addEventListener("click", () => {
+        playSound("click");
+        AppState.isCyberMap = !AppState.isCyberMap;
+        if (AppState.isCyberMap) {
+          mapElement.classList.add("osm-cyber-tiles");
+          toggleThemeBtn.innerHTML = `<i data-lucide="palette" class="w-4 h-4 text-emerald-400"></i><span class="text-xs font-semibold">Cyber Dark: ON</span>`;
+          showToast("Cyber Dark Map mode enabled", "info");
+        } else {
+          mapElement.classList.remove("osm-cyber-tiles");
+          toggleThemeBtn.innerHTML = `<i data-lucide="map" class="w-4 h-4 text-cyan-400"></i><span class="text-xs font-semibold">Standard OSM</span>`;
+          showToast("Standard OpenStreetMap mode enabled", "info");
+        }
+        lucide.createIcons();
       });
     }
 
@@ -283,6 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetMapBtn.addEventListener("click", () => {
         playSound("click");
         map.flyTo(bdCenter, 7, { duration: 1.2 });
+        setTimeout(() => map.invalidateSize(), 1200);
       });
     }
 
@@ -399,7 +436,8 @@ document.addEventListener("DOMContentLoaded", () => {
         { direction: "top", offset: [0, -10], className: "custom-glass-tooltip" }
       );
 
-      marker.on("click", () => {
+      marker.on("click", (e) => {
+        if (e && e.originalEvent) e.originalEvent.stopPropagation();
         selectPolytechnic(poly);
       });
 
@@ -438,6 +476,10 @@ document.addEventListener("DOMContentLoaded", () => {
       AppState.map.flyTo([23.75, 90.35], 7, { duration: 1.2 });
     }
 
+    setTimeout(() => {
+      if (AppState.map) AppState.map.invalidateSize();
+    }, 400);
+
     updatePolytechnicCount(visibleCount);
   }
 
@@ -456,9 +498,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Animate map camera smoothly
     if (AppState.map) {
       AppState.map.flyTo(poly.coordinates, 13, {
-        duration: 1.5,
+        duration: 1.4,
         easeLinearity: 0.25
       });
+      setTimeout(() => {
+        if (AppState.map) AppState.map.invalidateSize();
+      }, 500);
     }
 
     // Populate and open drawer
@@ -494,6 +539,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function populateCollegeDrawer(poly) {
     if (!poly) return;
 
+    // Header Campus Image with Error Fallback
+    const imgEl = document.getElementById("drawer-college-img");
+    if (imgEl) {
+      imgEl.src = poly.avatar || "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80";
+      imgEl.onerror = () => {
+        imgEl.src = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&q=80";
+      };
+    }
+
     // Header info
     document.getElementById("drawer-college-name").textContent = poly.name;
     document.getElementById("drawer-college-bn-name").textContent = poly.bn_name;
@@ -505,14 +559,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // Action links
     const webBtn = document.getElementById("drawer-website-btn");
     if (webBtn) {
-      webBtn.href = poly.contact.website || "#";
-      webBtn.classList.toggle("pointer-events-none", !poly.contact.website);
-      webBtn.classList.toggle("opacity-50", !poly.contact.website);
+      if (poly.contact && poly.contact.website) {
+        webBtn.href = poly.contact.website;
+        webBtn.classList.remove("pointer-events-none", "opacity-50");
+        webBtn.setAttribute("target", "_blank");
+        webBtn.setAttribute("rel", "noopener noreferrer");
+      } else {
+        webBtn.href = "#";
+        webBtn.classList.add("pointer-events-none", "opacity-50");
+      }
     }
 
     const callBtn = document.getElementById("drawer-call-btn");
     if (callBtn) {
-      callBtn.href = poly.contact.phone ? `tel:${poly.contact.phone}` : "#";
+      if (poly.contact && poly.contact.phone) {
+        callBtn.href = `tel:${poly.contact.phone.replace(/[^0-9+]/g, "")}`;
+        callBtn.classList.remove("pointer-events-none", "opacity-50");
+      } else {
+        callBtn.href = "#";
+        callBtn.classList.add("pointer-events-none", "opacity-50");
+      }
     }
 
     // Tab 1: History & Overview
@@ -618,7 +684,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function initDepartmentExplorer() {
     const reg2022Btn = document.getElementById("reg-2022-btn");
     const reg2016Btn = document.getElementById("reg-2016-btn");
-    const deptsGrid = document.getElementById("departments-grid");
     const deptSearchInput = document.getElementById("dept-search-input");
 
     // Regulation Switcher
@@ -846,11 +911,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const presetHighBtn = document.getElementById("preset-cgpa-high-btn");
     const semesterInputs = document.querySelectorAll(".cgpa-sem-input");
 
-    // Official BTEB 2016 Regulation semester percentage weightages:
+    // Official BTEB semester percentage weightages:
     // 1st: 5%, 2nd: 5%, 3rd: 5%, 4th: 10%, 5th: 15%, 6th: 20%, 7th: 25%, 8th: 15% (Total: 100%)
-    const WEIGHTS_2016 = [0.05, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.15];
-    // 2022 Regulation:
-    const WEIGHTS_2022 = [0.05, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.15];
+    const WEIGHTS = [0.05, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.15];
 
     function calculateCGPA() {
       playSound("calc");
@@ -858,13 +921,11 @@ document.addEventListener("DOMContentLoaded", () => {
       let totalWeight = 0;
       let countEntered = 0;
 
-      const weights = AppState.selectedRegulation === "2022" ? WEIGHTS_2022 : WEIGHTS_2016;
-
       semesterInputs.forEach((input, index) => {
         const val = parseFloat(input.value);
         if (!isNaN(val) && val >= 0 && val <= 4.0) {
-          totalWeightedGPA += val * weights[index];
-          totalWeight += weights[index];
+          totalWeightedGPA += val * WEIGHTS[index];
+          totalWeight += WEIGHTS[index];
           countEntered++;
         }
       });
@@ -875,6 +936,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       displayCGPAResult(finalCGPA, countEntered);
+      return { finalCGPA, countEntered };
     }
 
     function displayCGPAResult(cgpa, count) {
@@ -928,8 +990,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (remarkEl) remarkEl.textContent = remark;
 
-      // Update Gauge SVG Circle
-      // Circumference = 2 * PI * r = 2 * PI * 42 ~= 264
+      // Update Gauge SVG Circle (Circumference: 2 * PI * 42 ~= 264)
       if (gaugeCircle) {
         const circumference = 264;
         const progress = (cgpa / 4.0) * circumference;
@@ -970,14 +1031,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Export CGPA Result Card
+    // Export CGPA Transcript Card Modal
     const exportCgpaBtn = document.getElementById("export-cgpa-btn");
     if (exportCgpaBtn) {
       exportCgpaBtn.addEventListener("click", () => {
         playSound("open");
-        const value = document.getElementById("cgpa-gauge-value").textContent;
-        const grade = document.getElementById("cgpa-letter-grade").textContent;
-        showToast(`Official CGPA Card generated: ${value} (${grade})`, "success");
+        const { finalCGPA, countEntered } = calculateCGPA();
+        openTranscriptModal(finalCGPA, countEntered);
       });
     }
   }
@@ -1007,12 +1067,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Notice download and read triggers
+    // Notice download and read triggers with interactive modal
     document.querySelectorAll(".view-notice-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         playSound("open");
-        const title = btn.dataset.title;
-        showToast(`Opening notice PDF viewer: "${title}"`, "info");
+        const title = btn.dataset.title || "BTEB Notice";
+        const date = btn.dataset.date || "2026-11-05";
+        const org = btn.dataset.org || "BTEB Authority";
+        const desc = btn.dataset.desc || "Official notification for polytechnic institutions and students.";
+        openNoticeModal(title, date, org, desc);
       });
     });
   }
@@ -1043,7 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (qrBtn) {
       qrBtn.addEventListener("click", () => {
         playSound("open");
-        showToast("Scan the QR Code on your Android phone to install instantly!", "info");
+        openQrModal();
       });
     }
   }
@@ -1094,6 +1158,10 @@ document.addEventListener("DOMContentLoaded", () => {
       closeCollegeDrawer();
       closeSyllabusModal();
       closePortalModal();
+      closeQrModal();
+      closeTranscriptModal();
+      closeNoticeModal();
+      closePolicyModal();
     }
   });
 
@@ -1208,7 +1276,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openPortalModal(poly) {
     if (!portalModal) return;
     const nameEl = document.getElementById("portal-modal-college-name");
-    if (nameEl) nameEl.textContent = poly ? poly.name : "Government Polytechnic Institute";
+    if (nameEl) nameEl.textContent = poly ? `${poly.name} (${poly.bn_name})` : "Government Polytechnic Institute";
     portalModal.classList.remove("hidden");
     if (portalBackdrop) portalBackdrop.classList.remove("hidden");
   }
@@ -1238,7 +1306,187 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 13. Toast Notification Helper
+  // 13. Mobile QR Code Modal
+  // ==========================================
+  const qrModal = document.getElementById("qr-code-modal");
+  const qrBackdrop = document.getElementById("qr-code-backdrop");
+  const qrCloseBtn = document.getElementById("qr-code-close-btn");
+  const copyApkLinkBtn = document.getElementById("copy-apk-link-btn");
+
+  function openQrModal() {
+    if (!qrModal) return;
+    qrModal.classList.remove("hidden");
+    if (qrBackdrop) qrBackdrop.classList.remove("hidden");
+  }
+
+  function closeQrModal() {
+    playSound("click");
+    if (qrModal) qrModal.classList.add("hidden");
+    if (qrBackdrop) qrBackdrop.classList.add("hidden");
+  }
+
+  if (qrCloseBtn) qrCloseBtn.addEventListener("click", closeQrModal);
+  if (qrBackdrop) qrBackdrop.addEventListener("click", closeQrModal);
+
+  if (copyApkLinkBtn) {
+    copyApkLinkBtn.addEventListener("click", () => {
+      playSound("click");
+      navigator.clipboard.writeText("https://diplomamate.bd/download/diplomamate-v2.4.apk");
+      showToast("APK Direct Download link copied to clipboard!", "success");
+    });
+  }
+
+  // ==========================================
+  // 14. CGPA Transcript Export Modal
+  // ==========================================
+  const transcriptModal = document.getElementById("transcript-modal");
+  const transcriptBackdrop = document.getElementById("transcript-backdrop");
+  const transcriptCloseBtn = document.getElementById("transcript-close-btn");
+  const printTranscriptBtn = document.getElementById("print-transcript-btn");
+
+  function openTranscriptModal(cgpa, count) {
+    if (!transcriptModal) return;
+    const valueEl = document.getElementById("transcript-cgpa-value");
+    const gradeEl = document.getElementById("transcript-grade-value");
+    const dateEl = document.getElementById("transcript-date");
+    const tbody = document.getElementById("transcript-table-body");
+
+    if (valueEl) valueEl.textContent = count > 0 ? cgpa.toFixed(2) : "0.00";
+    if (gradeEl) {
+      const g = document.getElementById("cgpa-letter-grade")?.textContent || "N/A";
+      gradeEl.textContent = g;
+    }
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    if (tbody) {
+      const inputs = document.querySelectorAll(".cgpa-sem-input");
+      const weights = [5, 5, 5, 10, 15, 20, 25, 15];
+      tbody.innerHTML = Array.from(inputs)
+        .map((input, idx) => {
+          const sem = idx + 1;
+          const val = parseFloat(input.value);
+          const score = !isNaN(val) ? val.toFixed(2) : "—";
+          return `
+          <tr class="border-b border-slate-700/60 text-xs">
+            <td class="py-2 font-semibold text-slate-300">Semester ${sem}</td>
+            <td class="py-2 text-center font-mono text-cyan-400 font-bold">${score}</td>
+            <td class="py-2 text-center font-mono text-slate-400">${weights[idx]}%</td>
+            <td class="py-2 text-center text-emerald-400 font-semibold">${!isNaN(val) ? (val * (weights[idx] / 100)).toFixed(3) : "—"}</td>
+          </tr>
+        `;
+        })
+        .join("");
+    }
+
+    transcriptModal.classList.remove("hidden");
+    if (transcriptBackdrop) transcriptBackdrop.classList.remove("hidden");
+  }
+
+  function closeTranscriptModal() {
+    playSound("click");
+    if (transcriptModal) transcriptModal.classList.add("hidden");
+    if (transcriptBackdrop) transcriptBackdrop.classList.add("hidden");
+  }
+
+  if (transcriptCloseBtn) transcriptCloseBtn.addEventListener("click", closeTranscriptModal);
+  if (transcriptBackdrop) transcriptBackdrop.addEventListener("click", closeTranscriptModal);
+  if (printTranscriptBtn) {
+    printTranscriptBtn.addEventListener("click", () => {
+      playSound("click");
+      window.print();
+    });
+  }
+
+  // ==========================================
+  // 15. Notice Document Viewer Modal
+  // ==========================================
+  const noticeModal = document.getElementById("notice-modal");
+  const noticeBackdrop = document.getElementById("notice-backdrop");
+  const noticeCloseBtn = document.getElementById("notice-close-btn");
+  const noticeDownloadBtn = document.getElementById("notice-download-doc-btn");
+
+  function openNoticeModal(title, date, org, desc) {
+    if (!noticeModal) return;
+    document.getElementById("notice-modal-title").textContent = title;
+    document.getElementById("notice-modal-date").textContent = date;
+    document.getElementById("notice-modal-org").textContent = org;
+    document.getElementById("notice-modal-desc").textContent = desc;
+
+    noticeModal.classList.remove("hidden");
+    if (noticeBackdrop) noticeBackdrop.classList.remove("hidden");
+  }
+
+  function closeNoticeModal() {
+    playSound("click");
+    if (noticeModal) noticeModal.classList.add("hidden");
+    if (noticeBackdrop) noticeBackdrop.classList.add("hidden");
+  }
+
+  if (noticeCloseBtn) noticeCloseBtn.addEventListener("click", closeNoticeModal);
+  if (noticeBackdrop) noticeBackdrop.addEventListener("click", closeNoticeModal);
+  if (noticeDownloadBtn) {
+    noticeDownloadBtn.addEventListener("click", () => {
+      playSound("calc");
+      showToast("Downloading verified BTEB gazette notice (PDF)...", "success");
+      setTimeout(() => closeNoticeModal(), 800);
+    });
+  }
+
+  // ==========================================
+  // 16. Policy & Disclaimer Modal
+  // ==========================================
+  const policyModal = document.getElementById("policy-modal");
+  const policyBackdrop = document.getElementById("policy-backdrop");
+  const policyCloseBtn = document.getElementById("policy-close-btn");
+
+  function openPolicyModal(title, content) {
+    if (!policyModal) return;
+    document.getElementById("policy-modal-title").textContent = title;
+    document.getElementById("policy-modal-content").innerHTML = content;
+    policyModal.classList.remove("hidden");
+    if (policyBackdrop) policyBackdrop.classList.remove("hidden");
+  }
+
+  function closePolicyModal() {
+    playSound("click");
+    if (policyModal) policyModal.classList.add("hidden");
+    if (policyBackdrop) policyBackdrop.classList.add("hidden");
+  }
+
+  if (policyCloseBtn) policyCloseBtn.addEventListener("click", closePolicyModal);
+  if (policyBackdrop) policyBackdrop.addEventListener("click", closePolicyModal);
+
+  document.querySelectorAll(".footer-policy-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      playSound("open");
+      const type = link.dataset.type;
+      if (type === "privacy") {
+        openPolicyModal(
+          "Privacy Policy",
+          `<p class="mb-3">DiplomaMate is committed to protecting student privacy. We operate as an open educational utility and do not sell or collect private telemetry.</p>
+           <p class="mb-3">CGPA computations and routine entries are performed completely client-side in your web browser or local device cache.</p>`
+        );
+      } else if (type === "terms") {
+        openPolicyModal(
+          "Terms of Service",
+          `<p class="mb-3">All syllabus documentation, subject codes, and academic regulations displayed on DiplomaMate are published for non-commercial educational guidance.</p>
+           <p class="mb-3">Diploma students, instructors, and researchers are free to access and reference this repository under open academic fair-use guidelines.</p>`
+        );
+      } else if (type === "disclaimer") {
+        openPolicyModal(
+          "BTEB Official Disclaimer",
+          `<p class="mb-3">DiplomaMate is an independent student academic resource aligned with official curricula published by the Bangladesh Technical Education Board (BTEB).</p>
+           <p class="mb-3">For binding legal circulars, official result sheets, and final transcripts, please consult official portals at <a href="http://www.bteb.gov.bd" target="_blank" class="text-cyan-400 underline">bteb.gov.bd</a>.</p>`
+        );
+      }
+    });
+  });
+
+  // ==========================================
+  // 17. Toast Notification Helper
   // ==========================================
   function showToast(message, type = "info") {
     const container = document.getElementById("toast-container");
@@ -1274,7 +1522,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.showToast = showToast;
 
   // ==========================================
-  // 14. Smooth Scroll for Navbar Links
+  // 18. Smooth Scroll & Mobile Navigation
   // ==========================================
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
@@ -1289,13 +1537,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Mobile Menu Toggle
+  // Mobile Menu Toggle and Auto-Close on Item Click
   const mobileMenuBtn = document.getElementById("mobile-menu-btn");
   const mobileNavMenu = document.getElementById("mobile-nav-menu");
   if (mobileMenuBtn && mobileNavMenu) {
     mobileMenuBtn.addEventListener("click", () => {
       playSound("click");
       mobileNavMenu.classList.toggle("hidden");
+    });
+
+    mobileNavMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileNavMenu.classList.add("hidden");
+      });
     });
   }
 
@@ -1311,5 +1565,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTiltEffects();
   lucide.createIcons();
 
-  console.log("🚀 DiplomaMate BTEB Portal initialized successfully.");
+  console.log("🚀 DiplomaMate BTEB Portal initialized with Free OpenStreetMap Leaflet Engine.");
 });
