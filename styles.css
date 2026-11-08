@@ -1,21 +1,24 @@
 /* ==========================================================================
    DiplomaMate - BTEB Polytechnic Portal Stylesheet
-   Theme: Dark Futuristic Glassmorphism with Glowing Neon Accents
-   Map Engine: Completely Free Leaflet OpenStreetMap Layer (Zero API keys)
+   Design: Clean, Classic, Simple & Professional Educational Platform
+   Map Engine: 100% Free Leaflet.js + OpenStreetMap (Strict Bangladesh Bounds)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
 
 :root {
-  --bg-deep: #060913;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --border-glow: rgba(6, 182, 212, 0.25);
-  --neon-cyan: #06b6d4;
-  --neon-emerald: #10b981;
-  --neon-blue: #3b82f6;
-  --neon-purple: #a855f7;
-  --neon-amber: #f59e0b;
+  --primary-navy: #0f2744;
+  --primary-blue: #1d4ed8;
+  --primary-blue-hover: #1e40af;
+  --accent-emerald: #059669;
+  --accent-emerald-light: #ecfdf5;
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --border-light: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
 }
 
 * {
@@ -23,16 +26,16 @@
   margin: 0;
   padding: 0;
   scrollbar-width: thin;
-  scrollbar-color: rgba(6, 182, 212, 0.4) rgba(15, 23, 42, 0.6);
+  scrollbar-color: #cbd5e1 #f8fafc;
 }
 
 body {
   font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
-  background-color: var(--bg-deep);
-  color: #f1f5f9;
+  background-color: var(--bg-page);
+  color: var(--text-main);
   overflow-x: hidden;
   min-height: 100vh;
-  position: relative;
+  line-height: 1.6;
 }
 
 /* Custom Scrollbar */
@@ -41,157 +44,99 @@ body {
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 30, 0.8);
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #06b6d4, #10b981);
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #38bdf8, #34d399);
+  background: #94a3b8;
 }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+/* Professional Educational Cards */
+.edu-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
 }
 
-.glass-panel-glow {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(6, 182, 212, 0.25);
-  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+.edu-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
 }
 
-.glass-pill {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.edu-card-interactive {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
-.glass-pill:hover, .glass-pill.active {
-  background: rgba(6, 182, 212, 0.15);
-  border-color: rgba(6, 182, 212, 0.5);
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+.edu-card-interactive:hover {
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.1);
 }
 
-/* 3D Canvas Background */
-#threejs-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.65;
+/* Map Container Styling */
+#bangladesh-map {
+  background-color: #e2e8f0;
+  border-radius: 16px;
+  z-index: 1;
 }
 
-/* 3D Tilt Card Effects */
-.tilt-card {
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-  transform-style: preserve-3d;
-  will-change: transform;
+.map-wrapper-clean {
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
 }
 
-.tilt-card:hover {
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 20px 35px -10px rgba(6, 182, 212, 0.25);
-}
-
-/* 3D Map Container and Perspective */
-.map-perspective-wrapper {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center center;
-}
-
-.map-perspective-wrapper.is-3d {
-  transform: rotateX(14deg) scale(0.985);
-  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(6, 182, 212, 0.2);
-}
-
-.map-perspective-wrapper.is-flat {
-  transform: rotateX(0deg) scale(1);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
-}
-
-/* Custom Leaflet Styling */
+/* Leaflet Clean Styles */
 .leaflet-container {
-  background-color: #080d1a !important;
   font-family: inherit !important;
-}
-
-/* Free OpenStreetMap Cyber Dark Mode Filter */
-.osm-cyber-tiles .leaflet-tile {
-  filter: invert(100%) hue-rotate(180deg) brightness(88%) contrast(115%) saturate(65%);
-  transition: filter 0.4s ease;
-}
-
-/* Standard OSM mode transition */
-.leaflet-tile {
-  transition: filter 0.4s ease;
 }
 
 .leaflet-control-zoom {
   border: none !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 
 .leaflet-control-zoom a {
-  background: rgba(15, 23, 42, 0.85) !important;
-  color: #38bdf8 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(8px);
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  transition: background-color 0.15s ease;
 }
 
 .leaflet-control-zoom a:hover {
-  background: rgba(6, 182, 212, 0.25) !important;
-  color: #ffffff !important;
+  background: #f8fafc !important;
+  color: #1d4ed8 !important;
 }
 
 .leaflet-control-attribution {
-  background: rgba(15, 23, 42, 0.85) !important;
-  color: #94a3b8 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #64748b !important;
+  font-size: 11px !important;
   border-radius: 6px !important;
-  padding: 2px 8px !important;
-  font-size: 10px !important;
-  backdrop-filter: blur(8px) !important;
+  padding: 2px 6px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .leaflet-control-attribution a {
-  color: #38bdf8 !important;
-  text-decoration: none !important;
+  color: #2563eb !important;
 }
 
-.leaflet-control-attribution a:hover {
-  text-decoration: underline !important;
-}
-
-.leaflet-popup-content-wrapper {
-  background: rgba(15, 23, 42, 0.95) !important;
-  backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(6, 182, 212, 0.4) !important;
-  color: #f8fafc !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.2) !important;
-}
-
-.leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(6, 182, 212, 0.4) !important;
-}
-
-/* Glowing Radar Marker Pin */
-.radar-marker-container {
+/* Clean Educational Pin Marker */
+.edu-pin-marker {
   position: relative;
   width: 32px;
   height: 32px;
@@ -199,100 +144,66 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-}
-
-.radar-marker-core {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #06b6d4;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 12px #06b6d4, 0 0 20px #06b6d4;
-  z-index: 2;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.radar-marker-pulse {
+.edu-pin-marker:hover {
+  transform: scale(1.25) translateY(-3px);
+  z-index: 1000 !important;
+}
+
+.edu-pin-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #1d4ed8;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.4), 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.edu-pin-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.edu-pin-pulse {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 2px solid rgba(6, 182, 212, 0.8);
-  animation: radarWave 2s infinite ease-out;
+  background: rgba(29, 78, 216, 0.15);
   pointer-events: none;
 }
 
-.radar-marker-secondary {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(16, 185, 129, 0.6);
-  animation: radarSpin 8s infinite linear;
-  pointer-events: none;
+/* Clean Tooltip */
+.custom-clean-tooltip {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+  font-size: 12px !important;
 }
 
-.radar-marker-container:hover .radar-marker-core {
-  transform: scale(1.4);
-  background: #10b981;
-  box-shadow: 0 0 18px #10b981, 0 0 30px #10b981;
+.leaflet-tooltip-top:before {
+  border-top-color: #0f172a !important;
 }
 
-@keyframes radarWave {
-  0% {
-    width: 12px;
-    height: 12px;
-    opacity: 1;
-  }
-  100% {
-    width: 52px;
-    height: 52px;
-    opacity: 0;
-  }
-}
-
-@keyframes radarSpin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* Pulsing Badge Indicator */
-.live-pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #10b981;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #10b981;
-  animation: liveBlink 1.5s infinite ease-in-out;
-}
-
-@keyframes liveBlink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
-}
-
-/* Glowing Neon Text */
-.neon-glow-text {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.7), 0 0 25px rgba(6, 182, 212, 0.3);
-}
-
-.emerald-glow-text {
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.7), 0 0 25px rgba(16, 185, 129, 0.3);
-}
-
-/* Drawer & Modal Transitions */
+/* Drawer Transitions */
 #college-drawer {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
 }
 
 #college-drawer.is-hidden {
-  transform: translateX(105%);
+  transform: translateX(100%);
   opacity: 0;
   pointer-events: none;
 }
@@ -303,52 +214,39 @@ body {
   pointer-events: auto;
 }
 
-/* 3D Floating Phone Mockup */
-.phone-mockup-wrapper {
-  perspective: 1200px;
+/* CGPA Gauge Arc */
+.cgpa-gauge-circle {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.floating-phone {
-  transform: rotateY(-14deg) rotateX(10deg) rotateZ(3deg);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: floatPhone 6s ease-in-out infinite;
+/* Badges */
+.badge-clean-blue {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
-.floating-phone:hover {
-  transform: rotateY(-4deg) rotateX(4deg) rotateZ(0deg) translateY(-8px);
+.badge-clean-green {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
-@keyframes floatPhone {
-  0%, 100% {
-    transform: rotateY(-14deg) rotateX(10deg) rotateZ(3deg) translateY(0);
-  }
-  50% {
-    transform: rotateY(-10deg) rotateX(7deg) rotateZ(1deg) translateY(-14px);
-  }
-}
-
-/* CGPA Gauge Animation */
-.cgpa-gauge-fill {
-  transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Grid Background Grid Accent */
-.bg-grid-pattern {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+.badge-clean-gray {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
 /* Toast Notifications */
 .toast-msg {
-  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(12px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -356,23 +254,17 @@ body {
   }
 }
 
-/* Print Styles for CGPA Transcript */
+/* Print Styles */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  #transcript-modal, #transcript-modal * {
-    visibility: visible;
+  header, footer, #interactive-map, #departments-section, #notice-section, #mobile-app-section, #toast-container {
+    display: none !important;
   }
   #transcript-modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: auto;
-    background: white !important;
-    color: black !important;
-    border: none !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
     box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
   }
 }

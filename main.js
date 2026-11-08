@@ -1,10 +1,16 @@
 /**
  * DiplomaMate - Main Application Controller
- * Handles Three.js 3D Background, Leaflet Interactive Map (OpenStreetMap free tile layer),
- * College Drawer, 3D Department & Booklist Explorer, CGPA Calculator, and UI Interactions.
+ * Professional, clean & clutter-free educational portal
+ * Map: 100% Free Leaflet.js + OpenStreetMap (Strict Bangladesh Bounds)
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Strict Bangladesh Geographical Bounds
+  const BD_SOUTH_WEST = L.latLng(20.35, 87.85);
+  const BD_NORTH_EAST = L.latLng(26.85, 92.95);
+  const BANGLADESH_BOUNDS = L.latLngBounds(BD_SOUTH_WEST, BD_NORTH_EAST);
+  const BD_CENTER = [23.75, 90.35];
+
   // Global State
   const AppState = {
     selectedRegulation: "2022",
@@ -12,260 +18,43 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPolytechnic: null,
     selectedDepartment: "cst",
     selectedSemester: 1,
-    audioEnabled: true,
-    is3DMap: true,
-    isCyberMap: true,
     map: null,
-    tileLayer: null,
     markers: [],
     polytechnics: typeof POLYTECHNIC_DATA !== "undefined" ? POLYTECHNIC_DATA : []
   };
 
   // ==========================================
-  // 1. Audio FX Synthesizer (Web Audio API)
-  // ==========================================
-  let audioCtx = null;
-  function playSound(type = "click") {
-    if (!AppState.audioEnabled) return;
-    try {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-      }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      const now = audioCtx.currentTime;
-      if (type === "click") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.06);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-        osc.start(now);
-        osc.stop(now + 0.06);
-      } else if (type === "open") {
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      } else if (type === "calc") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.linearRampToValueAtTime(750, now + 0.1);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.linearRampToValueAtTime(0.001, now + 0.12);
-        osc.start(now);
-        osc.stop(now + 0.12);
-      }
-    } catch (e) {
-      // Audio not supported or permission denied
-    }
-  }
-
-  // Audio Toggle Button
-  const audioToggleBtn = document.getElementById("audio-toggle-btn");
-  if (audioToggleBtn) {
-    audioToggleBtn.addEventListener("click", () => {
-      AppState.audioEnabled = !AppState.audioEnabled;
-      audioToggleBtn.innerHTML = AppState.audioEnabled
-        ? `<i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i>`
-        : `<i data-lucide="volume-x" class="w-4 h-4 text-slate-500"></i>`;
-      lucide.createIcons();
-      showToast(AppState.audioEnabled ? "Audio Effects Enabled" : "Audio Muted", "info");
-      playSound("click");
-    });
-  }
-
-  // ==========================================
-  // 2. Three.js 3D Background Geometry
-  // ==========================================
-  function initThreeBackground() {
-    const canvas = document.getElementById("threejs-canvas");
-    if (!canvas || typeof THREE === "undefined") return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 32;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // Floating Geometries Group
-    const group = new THREE.Group();
-    scene.add(group);
-
-    // Glowing wireframe icosahedrons and polyhedra
-    const geometries = [
-      new THREE.IcosahedronGeometry(3.5, 0),
-      new THREE.OctahedronGeometry(2.5, 0),
-      new THREE.TorusGeometry(3, 0.7, 16, 50),
-      new THREE.BoxGeometry(2.8, 2.8, 2.8),
-      new THREE.TetrahedronGeometry(2.8, 0)
-    ];
-
-    const materials = [
-      new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.3 }),
-      new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.25 }),
-      new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, transparent: true, opacity: 0.2 }),
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.35 })
-    ];
-
-    const floatingObjects = [];
-    for (let i = 0; i < 22; i++) {
-      const geo = geometries[i % geometries.length];
-      const mat = materials[i % materials.length];
-      const mesh = new THREE.Mesh(geo, mat);
-
-      mesh.position.x = (Math.random() - 0.5) * 70;
-      mesh.position.y = (Math.random() - 0.5) * 50;
-      mesh.position.z = (Math.random() - 0.5) * 35;
-
-      mesh.rotation.x = Math.random() * Math.PI;
-      mesh.rotation.y = Math.random() * Math.PI;
-
-      mesh.scale.setScalar(Math.random() * 0.7 + 0.5);
-
-      mesh.userData = {
-        rotSpeedX: (Math.random() - 0.5) * 0.008,
-        rotSpeedY: (Math.random() - 0.5) * 0.008,
-        floatSpeed: Math.random() * 0.01 + 0.005,
-        floatOffset: Math.random() * Math.PI * 2,
-        initialY: mesh.position.y
-      };
-
-      group.add(mesh);
-      floatingObjects.push(mesh);
-    }
-
-    // Floating Particles Field
-    const particleCount = 200;
-    const partGeo = new THREE.BufferGeometry();
-    const partPos = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount * 3; i += 3) {
-      partPos[i] = (Math.random() - 0.5) * 100;
-      partPos[i + 1] = (Math.random() - 0.5) * 80;
-      partPos[i + 2] = (Math.random() - 0.5) * 60;
-    }
-    partGeo.setAttribute("position", new THREE.BufferAttribute(partPos, 3));
-    const partMat = new THREE.PointsMaterial({
-      color: 0x06b6d4,
-      size: 0.8,
-      transparent: true,
-      opacity: 0.5
-    });
-    const particles = new THREE.Points(partGeo, partMat);
-    scene.add(particles);
-
-    // Mouse parallax tracking
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-
-    window.addEventListener("mousemove", (e) => {
-      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-    });
-
-    // Resize Handler
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // Animation Loop
-    let clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      targetX += (mouseX * 4 - targetX) * 0.05;
-      targetY += (mouseY * 4 - targetY) * 0.05;
-      group.position.x = targetX * 0.8;
-      group.position.y = targetY * 0.8;
-      group.rotation.y = elapsedTime * 0.02 + targetX * 0.05;
-
-      particles.rotation.y = elapsedTime * 0.015;
-
-      floatingObjects.forEach((obj) => {
-        obj.rotation.x += obj.userData.rotSpeedX;
-        obj.rotation.y += obj.userData.rotSpeedY;
-        obj.position.y = obj.userData.initialY + Math.sin(elapsedTime * 0.8 + obj.userData.floatOffset) * 1.5;
-      });
-
-      renderer.render(scene, camera);
-    }
-    animate();
-  }
-
-  // ==========================================
-  // 3. 3D Tilt Card Listeners
-  // ==========================================
-  function setupTiltEffects() {
-    const cards = document.querySelectorAll(".tilt-card");
-    cards.forEach((card) => {
-      card.addEventListener("mousemove", (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -10;
-        const rotateY = ((x - centerX) / centerX) * 10;
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-      });
-
-      card.addEventListener("mouseleave", () => {
-        card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-      });
-    });
-  }
-
-  // ==========================================
-  // 4. Interactive Bangladesh Map (Leaflet.js + 100% Free OpenStreetMap)
+  // 1. Interactive Bangladesh Map (Leaflet + OpenStreetMap)
   // ==========================================
   function initBangladeshMap() {
     const mapElement = document.getElementById("bangladesh-map");
     if (!mapElement || typeof L === "undefined") return;
 
-    // Center on Bangladesh
-    const bdCenter = [23.75, 90.35];
+    // Initialize Map strictly constrained to Bangladesh bounds
     const map = L.map("bangladesh-map", {
-      center: bdCenter,
+      center: BD_CENTER,
       zoom: 7,
       minZoom: 6,
       maxZoom: 18,
+      maxBounds: BANGLADESH_BOUNDS,
+      maxBoundsViscosity: 1.0, // Hard lock: users cannot drag outside Bangladesh!
       zoomControl: true,
       attributionControl: true
     });
 
-    // Completely free Leaflet OpenStreetMap tile layer (no paid provider, no API key required)
-    const osmTileLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // 100% Free Leaflet OpenStreetMap Tile Layer using requested subdomains
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      subdomains: ["a", "b", "c"],
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     AppState.map = map;
-    AppState.tileLayer = osmTileLayer;
-    AppState.isCyberMap = true;
 
-    // Trigger size invalidation immediately to ensure error-free tile rendering
+    // Ensure tiles render immediately and accurately
     setTimeout(() => {
       map.invalidateSize();
-    }, 250);
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 600);
+    }, 200);
 
     window.addEventListener("resize", () => {
       if (AppState.map) AppState.map.invalidateSize();
@@ -273,53 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderMapMarkers();
 
-    // Map 3D Perspective Toggle Button
-    const toggle3DBtn = document.getElementById("toggle-3d-map-btn");
-    const mapWrapper = document.getElementById("map-perspective-container");
-    if (toggle3DBtn && mapWrapper) {
-      toggle3DBtn.addEventListener("click", () => {
-        playSound("click");
-        AppState.is3DMap = !AppState.is3DMap;
-        if (AppState.is3DMap) {
-          mapWrapper.classList.remove("is-flat");
-          mapWrapper.classList.add("is-3d");
-          toggle3DBtn.innerHTML = `<i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i><span class="text-xs font-semibold">3D Tilt: ON</span>`;
-        } else {
-          mapWrapper.classList.remove("is-3d");
-          mapWrapper.classList.add("is-flat");
-          toggle3DBtn.innerHTML = `<i data-lucide="square" class="w-4 h-4 text-slate-400"></i><span class="text-xs font-semibold">3D Tilt: OFF</span>`;
-        }
-        lucide.createIcons();
-        setTimeout(() => map.invalidateSize(), 350);
-      });
-    }
-
-    // Map Theme Color Mode Toggle (Cyber Dark / Standard OSM)
-    const toggleThemeBtn = document.getElementById("toggle-map-theme-btn");
-    if (toggleThemeBtn) {
-      toggleThemeBtn.addEventListener("click", () => {
-        playSound("click");
-        AppState.isCyberMap = !AppState.isCyberMap;
-        if (AppState.isCyberMap) {
-          mapElement.classList.add("osm-cyber-tiles");
-          toggleThemeBtn.innerHTML = `<i data-lucide="palette" class="w-4 h-4 text-emerald-400"></i><span class="text-xs font-semibold">Cyber Dark: ON</span>`;
-          showToast("Cyber Dark Map mode enabled", "info");
-        } else {
-          mapElement.classList.remove("osm-cyber-tiles");
-          toggleThemeBtn.innerHTML = `<i data-lucide="map" class="w-4 h-4 text-cyan-400"></i><span class="text-xs font-semibold">Standard OSM</span>`;
-          showToast("Standard OpenStreetMap mode enabled", "info");
-        }
-        lucide.createIcons();
-      });
-    }
-
     // Reset Map View Button
     const resetMapBtn = document.getElementById("reset-map-view-btn");
     if (resetMapBtn) {
       resetMapBtn.addEventListener("click", () => {
-        playSound("click");
-        map.flyTo(bdCenter, 7, { duration: 1.2 });
-        setTimeout(() => map.invalidateSize(), 1200);
+        map.flyTo(BD_CENTER, 7, { duration: 1 });
+        setTimeout(() => map.invalidateSize(), 1000);
       });
     }
 
@@ -327,16 +75,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterButtons = document.querySelectorAll(".division-filter-btn");
     filterButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
-        playSound("click");
-        filterButtons.forEach((b) => b.classList.remove("active", "border-cyan-400", "bg-cyan-500/20", "text-cyan-300"));
-        btn.classList.add("active", "border-cyan-400", "bg-cyan-500/20", "text-cyan-300");
+        filterButtons.forEach((b) => {
+          b.classList.remove("active", "bg-blue-600", "text-white");
+          b.classList.add("bg-white", "text-slate-700", "hover:bg-slate-100");
+        });
+        btn.classList.add("active", "bg-blue-600", "text-white");
+        btn.classList.remove("bg-white", "text-slate-700", "hover:bg-slate-100");
 
         AppState.selectedDivision = btn.dataset.division;
         filterMapMarkers(AppState.selectedDivision);
       });
     });
 
-    // Live Institute Map Search Bar
+    // Live Institute Search Input
     const mapSearchInput = document.getElementById("map-search-input");
     const mapSearchDropdown = document.getElementById("map-search-dropdown");
     if (mapSearchInput && mapSearchDropdown) {
@@ -356,20 +107,20 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (matches.length === 0) {
-          mapSearchDropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">No polytechnic found matching "${query}"</div>`;
+          mapSearchDropdown.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No institute found matching "${query}"</div>`;
         } else {
           mapSearchDropdown.innerHTML = matches
-            .slice(0, 7)
+            .slice(0, 6)
             .map(
               (p) => `
-            <div class="search-result-item flex items-center justify-between p-2.5 hover:bg-slate-800/80 cursor-pointer border-b border-slate-700/50 last:border-b-0 transition-colors" data-id="${p.id}">
+            <div class="search-result-item flex items-center justify-between p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition-colors" data-id="${p.id}">
               <div>
-                <div class="text-sm font-semibold text-slate-100">${p.name}</div>
-                <div class="text-xs text-cyan-400 flex items-center gap-2">
-                  <span>${p.bn_name}</span> &bull; <span>Code: ${p.code}</span>
+                <div class="text-sm font-semibold text-slate-900">${p.name}</div>
+                <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                  <span class="font-bengali">${p.bn_name}</span> &bull; <span class="font-mono text-blue-600 font-medium">Code: ${p.code}</span>
                 </div>
               </div>
-              <span class="px-2 py-0.5 rounded text-[11px] bg-slate-800 text-emerald-400 border border-emerald-500/30">${p.division}</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">${p.division}</span>
             </div>
           `
             )
@@ -397,23 +148,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Render Glowing Radar Markers
+  // Render Clean Educational Pin Markers
   function renderMapMarkers() {
     if (!AppState.map) return;
 
-    // Clear existing markers
     AppState.markers.forEach((m) => AppState.map.removeLayer(m));
     AppState.markers = [];
 
     AppState.polytechnics.forEach((poly) => {
-      // Custom pulsing HTML Pin Marker
+      // Clean, professional academic pin
       const customIcon = L.divIcon({
-        className: "radar-marker-wrapper",
+        className: "edu-pin-marker-wrapper",
         html: `
-          <div class="radar-marker-container" title="${poly.name} (${poly.code})">
-            <div class="radar-marker-core"></div>
-            <div class="radar-marker-pulse"></div>
-            <div class="radar-marker-secondary"></div>
+          <div class="edu-pin-marker" title="${poly.name} (Code: ${poly.code})">
+            <div class="edu-pin-pulse"></div>
+            <div class="edu-pin-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+              </svg>
+            </div>
           </div>
         `,
         iconSize: [32, 32],
@@ -422,18 +176,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const marker = L.marker(poly.coordinates, { icon: customIcon }).addTo(AppState.map);
 
-      // Tooltip
+      // Clean tooltip
       marker.bindTooltip(
         `
-        <div class="text-left p-1">
-          <div class="font-bold text-xs text-cyan-300">${poly.name}</div>
-          <div class="text-[11px] text-slate-300">${poly.bn_name}</div>
-          <div class="flex items-center gap-2 mt-1 text-[10px] text-emerald-400">
-            <span>Code: ${poly.code}</span> &bull; <span>${poly.division}</span>
+        <div class="text-left py-0.5">
+          <div class="font-bold text-xs text-white">${poly.name}</div>
+          <div class="text-[11px] text-slate-300 font-bengali">${poly.bn_name}</div>
+          <div class="flex items-center gap-1.5 mt-1 text-[10px] text-blue-300 font-mono">
+            <span>Code: ${poly.code}</span> &bull; <span>${poly.district}</span>
           </div>
         </div>
       `,
-        { direction: "top", offset: [0, -10], className: "custom-glass-tooltip" }
+        { direction: "top", offset: [0, -10], className: "custom-clean-tooltip" }
       );
 
       marker.on("click", (e) => {
@@ -471,14 +225,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (visibleCount > 0 && division !== "All") {
-      AppState.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10, duration: 1.2 });
+      AppState.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10, duration: 1 });
     } else if (division === "All") {
-      AppState.map.flyTo([23.75, 90.35], 7, { duration: 1.2 });
+      AppState.map.flyTo(BD_CENTER, 7, { duration: 1 });
     }
 
     setTimeout(() => {
       if (AppState.map) AppState.map.invalidateSize();
-    }, 400);
+    }, 300);
 
     updatePolytechnicCount(visibleCount);
   }
@@ -492,27 +246,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Select Polytechnic (Fly Camera & Open Drawer)
   function selectPolytechnic(poly) {
-    playSound("open");
     AppState.currentPolytechnic = poly;
 
-    // Animate map camera smoothly
     if (AppState.map) {
-      AppState.map.flyTo(poly.coordinates, 13, {
-        duration: 1.4,
-        easeLinearity: 0.25
+      AppState.map.flyTo(poly.coordinates, 12, {
+        duration: 1.2
       });
       setTimeout(() => {
         if (AppState.map) AppState.map.invalidateSize();
-      }, 500);
+      }, 400);
     }
 
-    // Populate and open drawer
     populateCollegeDrawer(poly);
     openCollegeDrawer();
   }
 
   // ==========================================
-  // 5. College A-to-Z Info Drawer & Modal
+  // 2. College A-to-Z Info Drawer
   // ==========================================
   const drawer = document.getElementById("college-drawer");
   const drawerBackdrop = document.getElementById("drawer-backdrop");
@@ -526,7 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeCollegeDrawer() {
-    playSound("click");
     if (!drawer) return;
     drawer.classList.add("is-hidden");
     drawer.classList.remove("is-visible");
@@ -539,15 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function populateCollegeDrawer(poly) {
     if (!poly) return;
 
-    // Header Campus Image with Error Fallback
-    const imgEl = document.getElementById("drawer-college-img");
-    if (imgEl) {
-      imgEl.src = poly.avatar || "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80";
-      imgEl.onerror = () => {
-        imgEl.src = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&q=80";
-      };
-    }
-
     // Header info
     document.getElementById("drawer-college-name").textContent = poly.name;
     document.getElementById("drawer-college-bn-name").textContent = poly.bn_name;
@@ -556,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("drawer-estd-badge").textContent = `Estd: ${poly.established}`;
     document.getElementById("drawer-division-badge").textContent = `${poly.district}, ${poly.division}`;
 
-    // Action links
+    // Website Link
     const webBtn = document.getElementById("drawer-website-btn");
     if (webBtn) {
       if (poly.contact && poly.contact.website) {
@@ -570,6 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Call Link
     const callBtn = document.getElementById("drawer-call-btn");
     if (callBtn) {
       if (poly.contact && poly.contact.phone) {
@@ -587,7 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (historyBn) historyBn.textContent = poly.history;
     if (historyEn) historyEn.textContent = poly.history_en || "";
 
-    // Total seats & Shifts
     const totalSeatsEl = document.getElementById("drawer-total-seats");
     if (totalSeatsEl) totalSeatsEl.textContent = poly.totalSeats ? `${poly.totalSeats}+ Seats` : "N/A";
 
@@ -602,19 +342,19 @@ document.addEventListener("DOMContentLoaded", () => {
           const shift1 = d.seats ? d.seats.shift1 : 50;
           const shift2 = d.seats ? d.seats.shift2 : 50;
           return `
-          <div class="glass-panel p-3.5 rounded-xl border border-slate-700/60 hover:border-cyan-500/40 transition-colors">
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-blue-300 transition-colors">
             <div class="flex items-center justify-between mb-2">
-              <span class="font-semibold text-sm text-cyan-200">${d.name}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/60">${shift1 + shift2} Seats</span>
+              <span class="font-semibold text-sm text-slate-900">${d.name}</span>
+              <span class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">${shift1 + shift2} Seats</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
-              <div class="flex items-center justify-between p-1.5 rounded bg-slate-900/60 text-slate-300">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-slate-700">
                 <span>1st Shift:</span>
-                <span class="font-mono font-bold text-emerald-400">${shift1}</span>
+                <span class="font-mono font-bold text-slate-900">${shift1}</span>
               </div>
-              <div class="flex items-center justify-between p-1.5 rounded bg-slate-900/60 text-slate-300">
+              <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-slate-700">
                 <span>2nd Shift:</span>
-                <span class="font-mono font-bold text-cyan-400">${shift2}</span>
+                <span class="font-mono font-bold text-slate-900">${shift2}</span>
               </div>
             </div>
           </div>
@@ -629,8 +369,8 @@ document.addEventListener("DOMContentLoaded", () => {
       facilitiesList.innerHTML = poly.facilities
         .map(
           (f) => `
-        <li class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-900/50 border border-slate-800 text-sm text-slate-200">
-          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+        <li class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
           <span>${f}</span>
         </li>
       `
@@ -639,17 +379,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const principalEl = document.getElementById("drawer-principal-info");
+    const contactPrincipalEl = document.getElementById("drawer-contact-principal");
     if (principalEl) {
       principalEl.textContent = poly.principal || "Principal Office, BTEB Regulated";
+    }
+    if (contactPrincipalEl) {
+      contactPrincipalEl.textContent = poly.principal || "Principal Office, BTEB Regulated";
     }
 
     // Tab 4: Contact & Portal
     const addressEl = document.getElementById("drawer-address");
     const phoneEl = document.getElementById("drawer-phone");
+    const phoneLinkEl = document.getElementById("drawer-phone-link");
     const emailEl = document.getElementById("drawer-email");
-    if (addressEl) addressEl.textContent = poly.contact.address || "Main Campus, Bangladesh";
-    if (phoneEl) phoneEl.textContent = poly.contact.phone || "+880 2-XXXXXXX";
-    if (emailEl) emailEl.textContent = poly.contact.email || "info@polytechnic.gov.bd";
+    const emailLinkEl = document.getElementById("drawer-email-link");
+    const websiteUrlLinkEl = document.getElementById("drawer-website-url-link");
+
+    if (addressEl) {
+      addressEl.textContent = (poly.contact && poly.contact.address) ? poly.contact.address : `${poly.district}, Bangladesh`;
+    }
+
+    if (phoneEl) {
+      const ph = (poly.contact && poly.contact.phone) ? poly.contact.phone : "Contact via Portal";
+      phoneEl.textContent = ph;
+      if (phoneLinkEl) {
+        phoneLinkEl.href = ph !== "Contact via Portal" ? `tel:${ph.split(',')[0].replace(/[^0-9+]/g, '')}` : "#";
+      }
+    }
+
+    if (emailEl) {
+      const em = (poly.contact && poly.contact.email) ? poly.contact.email : "info@bteb.gov.bd";
+      emailEl.textContent = em;
+      if (emailLinkEl) {
+        emailLinkEl.href = `mailto:${em}`;
+      }
+    }
+
+    if (websiteUrlLinkEl) {
+      const webUrl = (poly.contact && poly.contact.website) ? poly.contact.website : "http://www.bteb.gov.bd";
+      websiteUrlLinkEl.textContent = webUrl;
+      websiteUrlLinkEl.href = webUrl;
+    }
 
     lucide.createIcons();
   }
@@ -658,10 +428,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const drawerTabs = document.querySelectorAll(".drawer-tab-btn");
   drawerTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      playSound("click");
       const target = tab.dataset.tab;
-      drawerTabs.forEach((t) => t.classList.remove("active", "border-cyan-400", "text-cyan-300", "bg-cyan-500/10"));
-      tab.classList.add("active", "border-cyan-400", "text-cyan-300", "bg-cyan-500/10");
+      drawerTabs.forEach((t) => {
+        t.classList.remove("active", "border-blue-600", "text-blue-600", "font-bold");
+        t.classList.add("text-slate-500", "font-medium");
+      });
+      tab.classList.add("active", "border-blue-600", "text-blue-600", "font-bold");
+      tab.classList.remove("text-slate-500", "font-medium");
 
       document.querySelectorAll(".drawer-tab-content").forEach((c) => c.classList.add("hidden"));
       const activeContent = document.getElementById(`drawer-tab-content-${target}`);
@@ -669,17 +442,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // College Portal Login Simulation Trigger
+  // College Portal Login Trigger
   const collegePortalLoginBtn = document.getElementById("login-college-portal-btn");
   if (collegePortalLoginBtn) {
     collegePortalLoginBtn.addEventListener("click", () => {
-      playSound("open");
       openPortalModal(AppState.currentPolytechnic);
     });
   }
 
   // ==========================================
-  // 6. 3D Department & Booklist Explorer
+  // 3. Department & Booklist Explorer
   // ==========================================
   function initDepartmentExplorer() {
     const reg2022Btn = document.getElementById("reg-2022-btn");
@@ -689,25 +461,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Regulation Switcher
     if (reg2022Btn && reg2016Btn) {
       reg2022Btn.addEventListener("click", () => {
-        playSound("click");
         AppState.selectedRegulation = "2022";
-        reg2022Btn.classList.add("bg-cyan-500", "text-slate-950", "shadow-lg", "shadow-cyan-500/30");
-        reg2022Btn.classList.remove("text-slate-400");
-        reg2016Btn.classList.remove("bg-cyan-500", "text-slate-950", "shadow-lg", "shadow-cyan-500/30");
-        reg2016Btn.classList.add("text-slate-400");
+        reg2022Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
+        reg2022Btn.classList.remove("text-slate-600", "hover:text-slate-900");
+        reg2016Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
+        reg2016Btn.classList.add("text-slate-600", "hover:text-slate-900");
         renderDepartmentCards();
-        showToast("Switched to BTEB 2022 Regulation Syllabus", "info");
+        showToast("Displaying BTEB 2022 Regulation Syllabus", "info");
       });
 
       reg2016Btn.addEventListener("click", () => {
-        playSound("click");
         AppState.selectedRegulation = "2016";
-        reg2016Btn.classList.add("bg-cyan-500", "text-slate-950", "shadow-lg", "shadow-cyan-500/30");
-        reg2016Btn.classList.remove("text-slate-400");
-        reg2022Btn.classList.remove("bg-cyan-500", "text-slate-950", "shadow-lg", "shadow-cyan-500/30");
-        reg2022Btn.classList.add("text-slate-400");
+        reg2016Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
+        reg2016Btn.classList.remove("text-slate-600", "hover:text-slate-900");
+        reg2022Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
+        reg2022Btn.classList.add("text-slate-600", "hover:text-slate-900");
         renderDepartmentCards();
-        showToast("Switched to BTEB 2016 Regulation Syllabus", "info");
+        showToast("Displaying BTEB 2016 Regulation Syllabus", "info");
       });
     }
 
@@ -734,9 +504,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (filtered.length === 0) {
       deptsGrid.innerHTML = `
-        <div class="col-span-full py-12 text-center text-slate-400">
-          <i data-lucide="search-x" class="w-12 h-12 mx-auto text-slate-600 mb-3"></i>
-          <p class="text-base font-semibold">No BTEB technology found for "${searchQuery}"</p>
+        <div class="col-span-full py-12 text-center text-slate-500">
+          <i data-lucide="search" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+          <p class="text-sm font-semibold">No BTEB technology found for "${searchQuery}"</p>
         </div>
       `;
       lucide.createIcons();
@@ -747,28 +517,26 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((d) => {
         const totalCred = AppState.selectedRegulation === "2022" ? d.totalCredits2022 : d.totalCredits2016;
         return `
-        <div class="tilt-card glass-panel rounded-2xl p-5 border border-slate-700/50 hover:border-cyan-500/50 relative group cursor-pointer transition-all duration-300 flex flex-col justify-between" data-dept-id="${d.id}">
-          <div class="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 border border-cyan-500/30 text-cyan-400">
-            ${d.short}
-          </div>
-
+        <div class="edu-card-interactive p-5 flex flex-col justify-between" data-dept-id="${d.id}">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${d.color} p-0.5 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
-              <div class="w-full h-full bg-slate-950/80 rounded-[10px] flex items-center justify-center text-cyan-300">
-                <i data-lucide="${d.icon}" class="w-6 h-6"></i>
-              </div>
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                ${d.short}
+              </span>
+              <span class="text-xs font-medium text-slate-500">
+                <strong class="font-mono text-slate-800">${totalCred}</strong> Credits
+              </span>
             </div>
 
-            <h3 class="font-bold text-lg text-slate-100 group-hover:text-cyan-300 transition-colors">${d.name}</h3>
-            <p class="text-xs text-slate-400 font-bengali mt-0.5">${d.bn_name}</p>
-
-            <p class="text-xs text-slate-300/80 line-clamp-2 mt-3 leading-relaxed">${d.description}</p>
+            <h3 class="font-bold text-base text-slate-900 hover:text-blue-600 transition-colors">${d.name}</h3>
+            <p class="text-xs text-slate-500 font-bengali mt-0.5">${d.bn_name}</p>
+            <p class="text-xs text-slate-600 mt-2.5 line-clamp-2 leading-relaxed">${d.description}</p>
           </div>
 
-          <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
-            <span class="text-slate-400">Total: <strong class="text-emerald-400 font-mono">${totalCred}</strong> Credits</span>
-            <span class="text-cyan-400 flex items-center gap-1 font-semibold group-hover:translate-x-1 transition-transform">
-              View Syllabus <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-medium">8 Semesters</span>
+            <span class="text-blue-600 font-semibold flex items-center gap-1">
+              View Booklist &rarr;
             </span>
           </div>
         </div>
@@ -777,12 +545,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
 
     lucide.createIcons();
-    setupTiltEffects();
 
-    // Attach click listeners to open Semester Booklist Modal
     deptsGrid.querySelectorAll("[data-dept-id]").forEach((card) => {
       card.addEventListener("click", () => {
-        playSound("open");
         const deptId = card.dataset.deptId;
         openSyllabusModal(deptId);
       });
@@ -790,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 7. Semester Selector & Booklist Modal
+  // 4. Semester Selector & Booklist Modal
   // ==========================================
   const syllabusModal = document.getElementById("syllabus-modal");
   const syllabusModalBackdrop = document.getElementById("syllabus-modal-backdrop");
@@ -814,7 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeSyllabusModal() {
-    playSound("click");
     if (syllabusModal) syllabusModal.classList.add("hidden");
     if (syllabusModalBackdrop) syllabusModalBackdrop.classList.add("hidden");
   }
@@ -829,10 +593,10 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = [1, 2, 3, 4, 5, 6, 7, 8]
       .map(
         (sem) => `
-        <button class="semester-btn px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+        <button class="semester-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
           sem === AppState.selectedSemester
-            ? "bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30"
-            : "bg-slate-800/80 text-slate-300 hover:bg-slate-700/80"
+            ? "bg-blue-600 text-white shadow-sm"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
         }" data-semester="${sem}">
           ${sem === 8 ? "8th (Industrial)" : `${sem}${getOrdinal(sem)} Sem`}
         </button>
@@ -842,7 +606,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     container.querySelectorAll(".semester-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        playSound("click");
         AppState.selectedSemester = parseInt(btn.dataset.semester, 10);
         renderSemesterButtons();
         renderSemesterSubjectList();
@@ -864,16 +627,16 @@ document.addEventListener("DOMContentLoaded", () => {
     subjectsContainer.innerHTML = subjects
       .map(
         (s) => `
-      <tr class="border-b border-slate-800/80 hover:bg-slate-800/40 transition-colors">
-        <td class="py-3 px-4 font-mono font-bold text-cyan-400 text-sm">${s.code}</td>
-        <td class="py-3 px-4 text-slate-200 font-medium text-sm">
+      <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+        <td class="py-3 px-4 font-mono font-bold text-blue-700 text-xs">${s.code}</td>
+        <td class="py-3 px-4 text-slate-900 font-medium text-xs">
           ${s.title}
         </td>
-        <td class="py-3 px-4 text-center font-mono text-slate-300 text-xs">${s.t}</td>
-        <td class="py-3 px-4 text-center font-mono text-slate-300 text-xs">${s.p}</td>
-        <td class="py-3 px-4 text-center font-mono font-bold text-emerald-400 text-sm">${s.c}</td>
+        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${s.t}</td>
+        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${s.p}</td>
+        <td class="py-3 px-4 text-center font-mono font-bold text-slate-900 text-xs">${s.c}</td>
         <td class="py-3 px-4 text-right">
-          <button class="download-subject-syllabus-btn px-2.5 py-1 rounded bg-slate-800 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 transition-colors text-xs font-semibold flex items-center gap-1 ml-auto" data-code="${s.code}" data-title="${s.title}">
+          <button class="download-subject-syllabus-btn px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors text-xs font-medium flex items-center gap-1 ml-auto" data-code="${s.code}" data-title="${s.title}">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> PDF
           </button>
         </td>
@@ -884,11 +647,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     lucide.createIcons();
 
-    // Attach syllabus download simulation
     subjectsContainer.querySelectorAll(".download-subject-syllabus-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        playSound("calc");
         const code = btn.dataset.code;
         const title = btn.dataset.title;
         showToast(`Downloaded syllabus outline: ${code} - ${title}`, "success");
@@ -903,7 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 8. BTEB Result & CGPA Calculator
+  // 5. BTEB Result & CGPA Calculator
   // ==========================================
   function initCGPACalculator() {
     const calcBtn = document.getElementById("calculate-cgpa-btn");
@@ -911,12 +672,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const presetHighBtn = document.getElementById("preset-cgpa-high-btn");
     const semesterInputs = document.querySelectorAll(".cgpa-sem-input");
 
-    // Official BTEB semester percentage weightages:
-    // 1st: 5%, 2nd: 5%, 3rd: 5%, 4th: 10%, 5th: 15%, 6th: 20%, 7th: 25%, 8th: 15% (Total: 100%)
+    // Official BTEB semester percentage weightages (Total: 100%)
     const WEIGHTS = [0.05, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.15];
 
     function calculateCGPA() {
-      playSound("calc");
       let totalWeightedGPA = 0;
       let totalWeight = 0;
       let countEntered = 0;
@@ -943,64 +702,55 @@ document.addEventListener("DOMContentLoaded", () => {
       const valueEl = document.getElementById("cgpa-gauge-value");
       const gradeEl = document.getElementById("cgpa-letter-grade");
       const remarkEl = document.getElementById("cgpa-remark-text");
-      const gaugeCircle = document.getElementById("cgpa-gauge-circle");
 
       if (valueEl) valueEl.textContent = count > 0 ? cgpa.toFixed(2) : "0.00";
 
-      let grade = "Pending";
+      let grade = "Awaiting Input";
       let remark = "Enter your semester GPAs to compute your official BTEB CGPA.";
-      let colorClass = "text-slate-400";
+      let colorClass = "text-slate-500";
 
       if (count > 0) {
         if (cgpa === 4.0) {
           grade = "A+ (Outstanding)";
           remark = "First Class with Distinction! Eligible for top engineering university admissions and prestigious scholarships.";
-          colorClass = "text-emerald-400";
+          colorClass = "text-emerald-700";
         } else if (cgpa >= 3.75) {
           grade = "A (Excellent)";
           remark = "First Class Standing. Strong eligibility for DUET & Government Sub-Assistant Engineer posts.";
-          colorClass = "text-cyan-400";
+          colorClass = "text-blue-700";
         } else if (cgpa >= 3.5) {
           grade = "A- (Very Good)";
           remark = "First Class. High competitive edge in government engineering recruitments.";
-          colorClass = "text-blue-400";
+          colorClass = "text-blue-600";
         } else if (cgpa >= 3.0) {
           grade = "B (Good)";
           remark = "Satisfactory First Division score.";
-          colorClass = "text-yellow-400";
+          colorClass = "text-amber-700";
         } else if (cgpa >= 2.5) {
           grade = "C (Pass)";
           remark = "Second Division pass.";
-          colorClass = "text-amber-500";
+          colorClass = "text-orange-700";
         } else if (cgpa >= 2.0) {
           grade = "D (Pass)";
           remark = "Minimum passing grade.";
-          colorClass = "text-orange-500";
+          colorClass = "text-orange-800";
         } else {
           grade = "F (Fail)";
           remark = "Academic backlog. Retake required.";
-          colorClass = "text-red-500";
+          colorClass = "text-red-700";
         }
       }
 
       if (gradeEl) {
         gradeEl.textContent = grade;
-        gradeEl.className = `font-bold text-lg ${colorClass}`;
+        gradeEl.className = `font-bold text-base ${colorClass}`;
       }
 
       if (remarkEl) remarkEl.textContent = remark;
-
-      // Update Gauge SVG Circle (Circumference: 2 * PI * 42 ~= 264)
-      if (gaugeCircle) {
-        const circumference = 264;
-        const progress = (cgpa / 4.0) * circumference;
-        gaugeCircle.style.strokeDashoffset = circumference - progress;
-      }
     }
 
     if (calcBtn) calcBtn.addEventListener("click", calculateCGPA);
 
-    // Auto-calculate on input change
     semesterInputs.forEach((input) => {
       input.addEventListener("input", () => {
         let val = parseFloat(input.value);
@@ -1012,7 +762,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (clearBtn) {
       clearBtn.addEventListener("click", () => {
-        playSound("click");
         semesterInputs.forEach((input) => (input.value = ""));
         displayCGPAResult(0, 0);
         showToast("CGPA fields cleared", "info");
@@ -1021,7 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (presetHighBtn) {
       presetHighBtn.addEventListener("click", () => {
-        playSound("calc");
         const presets = ["3.85", "3.90", "3.78", "3.92", "3.80", "3.88", "3.95", "4.00"];
         semesterInputs.forEach((input, i) => {
           input.value = presets[i];
@@ -1031,11 +779,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Export CGPA Transcript Card Modal
     const exportCgpaBtn = document.getElementById("export-cgpa-btn");
     if (exportCgpaBtn) {
       exportCgpaBtn.addEventListener("click", () => {
-        playSound("open");
         const { finalCGPA, countEntered } = calculateCGPA();
         openTranscriptModal(finalCGPA, countEntered);
       });
@@ -1043,7 +789,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 9. Notice Board & Job Circulars
+  // 6. Notice Board & Job Circulars
   // ==========================================
   function initNoticeBoard() {
     const noticeTabs = document.querySelectorAll(".notice-tab-btn");
@@ -1051,11 +797,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     noticeTabs.forEach((tab) => {
       tab.addEventListener("click", () => {
-        playSound("click");
         const category = tab.dataset.category;
 
-        noticeTabs.forEach((t) => t.classList.remove("active", "border-cyan-400", "text-cyan-300", "bg-cyan-500/10"));
-        tab.classList.add("active", "border-cyan-400", "text-cyan-300", "bg-cyan-500/10");
+        noticeTabs.forEach((t) => {
+          t.classList.remove("active", "border-blue-600", "text-blue-600", "font-bold");
+          t.classList.add("text-slate-500", "font-medium");
+        });
+        tab.classList.add("active", "border-blue-600", "text-blue-600", "font-bold");
+        tab.classList.remove("text-slate-500", "font-medium");
 
         noticeCards.forEach((card) => {
           if (category === "all" || card.dataset.category === category) {
@@ -1067,11 +816,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Notice download and read triggers with interactive modal
     document.querySelectorAll(".view-notice-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
-        playSound("open");
         const title = btn.dataset.title || "BTEB Notice";
         const date = btn.dataset.date || "2026-11-05";
         const org = btn.dataset.org || "BTEB Authority";
@@ -1082,192 +829,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 10. Floating 3D Mobile Mockup & App CTA
+  // 7. Mobile App & QR Code CTA
   // ==========================================
-  function initMobileMockup() {
-    const phone = document.getElementById("floating-app-phone");
-    if (phone) {
-      window.addEventListener("mousemove", (e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 20;
-        const y = (e.clientY / window.innerHeight - 0.5) * 20;
-        phone.style.transform = `rotateY(${-12 + x}deg) rotateX(${8 - y}deg) rotateZ(2deg)`;
-      });
-    }
-
+  function initMobileAppCTA() {
     const downloadApkBtn = document.getElementById("download-apk-btn");
     const qrBtn = document.getElementById("view-qr-btn");
 
     if (downloadApkBtn) {
       downloadApkBtn.addEventListener("click", () => {
-        playSound("open");
-        simulateApkDownload();
+        showToast("Starting DiplomaMate v2.4 APK download (18.4 MB)...", "info");
+        setTimeout(() => {
+          showToast("Download complete: diplomamate-bteb-v2.4.apk", "success");
+        }, 1500);
       });
     }
 
     if (qrBtn) {
       qrBtn.addEventListener("click", () => {
-        playSound("open");
         openQrModal();
       });
     }
   }
 
-  function simulateApkDownload() {
-    showToast("Starting DiplomaMate v2.4 APK download (18.4 MB)...", "info");
-    setTimeout(() => {
-      showToast("Download complete: diplomamate-bteb-v2.4.apk", "success");
-    }, 1800);
-  }
-
   // ==========================================
-  // 11. Global Quick Search Modal (Ctrl + K)
+  // 8. Modals Management (QR, Transcript, Portal, Notice, Policy)
   // ==========================================
-  const searchModal = document.getElementById("global-search-modal");
-  const searchBackdrop = document.getElementById("global-search-backdrop");
-  const searchInput = document.getElementById("global-search-input");
-  const searchResults = document.getElementById("global-search-results");
-  const openSearchBtn = document.getElementById("open-global-search-btn");
-
-  function openGlobalSearch() {
-    playSound("open");
-    if (searchModal) searchModal.classList.remove("hidden");
-    if (searchBackdrop) searchBackdrop.classList.remove("hidden");
-    if (searchInput) {
-      searchInput.value = "";
-      searchInput.focus();
-      renderGlobalSearchResults("");
-    }
-  }
-
-  function closeGlobalSearch() {
-    playSound("click");
-    if (searchModal) searchModal.classList.add("hidden");
-    if (searchBackdrop) searchBackdrop.classList.add("hidden");
-  }
-
-  if (openSearchBtn) openSearchBtn.addEventListener("click", openGlobalSearch);
-  if (searchBackdrop) searchBackdrop.addEventListener("click", closeGlobalSearch);
-
-  window.addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-      e.preventDefault();
-      openGlobalSearch();
-    }
-    if (e.key === "Escape") {
-      closeGlobalSearch();
-      closeCollegeDrawer();
-      closeSyllabusModal();
-      closePortalModal();
-      closeQrModal();
-      closeTranscriptModal();
-      closeNoticeModal();
-      closePolicyModal();
-    }
-  });
-
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      renderGlobalSearchResults(e.target.value.trim().toLowerCase());
-    });
-  }
-
-  function renderGlobalSearchResults(query) {
-    if (!searchResults) return;
-
-    if (!query) {
-      searchResults.innerHTML = `
-        <div class="p-4 text-xs text-slate-500 text-center">
-          Type institute name, BTEB code (e.g. 50117), division, or department (e.g. CST, Civil)...
-        </div>
-      `;
-      return;
-    }
-
-    const matchedPolys = AppState.polytechnics.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.bn_name.toLowerCase().includes(query) ||
-        p.code.includes(query) ||
-        p.district.toLowerCase().includes(query)
-    );
-
-    const matchedDepts = (typeof TECHNOLOGIES_DATA !== "undefined" ? TECHNOLOGIES_DATA : []).filter(
-      (d) =>
-        d.name.toLowerCase().includes(query) ||
-        d.bn_name.toLowerCase().includes(query) ||
-        d.short.toLowerCase().includes(query)
-    );
-
-    let html = "";
-
-    if (matchedPolys.length > 0) {
-      html += `
-        <div class="p-2 text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Polytechnic Institutes</div>
-      `;
-      html += matchedPolys
-        .slice(0, 5)
-        .map(
-          (p) => `
-        <div class="global-result-poly flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-800/80 cursor-pointer transition-colors" data-id="${p.id}">
-          <div>
-            <div class="text-sm font-semibold text-slate-200">${p.name}</div>
-            <div class="text-xs text-slate-400">${p.bn_name} &bull; Code: <span class="text-cyan-400 font-mono">${p.code}</span></div>
-          </div>
-          <span class="text-xs px-2 py-0.5 rounded bg-slate-900 text-emerald-400 border border-emerald-500/30">${p.division}</span>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    if (matchedDepts.length > 0) {
-      html += `
-        <div class="p-2 text-[11px] font-bold text-emerald-400 uppercase tracking-wider mt-3">BTEB Technologies & Booklists</div>
-      `;
-      html += matchedDepts
-        .slice(0, 4)
-        .map(
-          (d) => `
-        <div class="global-result-dept flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-800/80 cursor-pointer transition-colors" data-dept="${d.id}">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-800 text-cyan-400 flex items-center justify-center font-bold text-xs">${d.short}</span>
-            <div>
-              <div class="text-sm font-semibold text-slate-200">${d.name}</div>
-              <div class="text-xs text-slate-400">${d.bn_name}</div>
-            </div>
-          </div>
-          <span class="text-xs text-cyan-400">View Syllabus &rarr;</span>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    if (matchedPolys.length === 0 && matchedDepts.length === 0) {
-      html = `<div class="p-6 text-sm text-slate-400 text-center">No matching polytechnics or departments found.</div>`;
-    }
-
-    searchResults.innerHTML = html;
-
-    searchResults.querySelectorAll(".global-result-poly").forEach((item) => {
-      item.addEventListener("click", () => {
-        closeGlobalSearch();
-        const poly = AppState.polytechnics.find((p) => p.id === item.dataset.id);
-        if (poly) selectPolytechnic(poly);
-      });
-    });
-
-    searchResults.querySelectorAll(".global-result-dept").forEach((item) => {
-      item.addEventListener("click", () => {
-        closeGlobalSearch();
-        openSyllabusModal(item.dataset.dept);
-      });
-    });
-  }
-
-  // ==========================================
-  // 12. College Portal Login Simulation Modal
-  // ==========================================
+  // Portal Modal
   const portalModal = document.getElementById("portal-login-modal");
   const portalBackdrop = document.getElementById("portal-login-backdrop");
   const portalCloseBtn = document.getElementById("portal-login-close-btn");
@@ -1282,32 +869,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closePortalModal() {
-    playSound("click");
     if (portalModal) portalModal.classList.add("hidden");
     if (portalBackdrop) portalBackdrop.classList.add("hidden");
   }
 
   if (portalCloseBtn) portalCloseBtn.addEventListener("click", closePortalModal);
   if (portalBackdrop) portalBackdrop.addEventListener("click", closePortalModal);
-
   if (portalSubmitBtn) {
     portalSubmitBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      playSound("calc");
       const roll = document.getElementById("portal-roll-input")?.value;
       const reg = document.getElementById("portal-reg-input")?.value;
       if (!roll || !reg) {
         showToast("Please enter valid Student Roll and Registration Number", "error");
         return;
       }
-      showToast(`Authenticated Student: Roll ${roll}. Redirecting to Student Dashboard...`, "success");
-      setTimeout(() => closePortalModal(), 1200);
+      showToast(`Authenticated Student: Roll ${roll}. Redirecting...`, "success");
+      setTimeout(() => closePortalModal(), 1000);
     });
   }
 
-  // ==========================================
-  // 13. Mobile QR Code Modal
-  // ==========================================
+  // QR Modal
   const qrModal = document.getElementById("qr-code-modal");
   const qrBackdrop = document.getElementById("qr-code-backdrop");
   const qrCloseBtn = document.getElementById("qr-code-close-btn");
@@ -1320,25 +902,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeQrModal() {
-    playSound("click");
     if (qrModal) qrModal.classList.add("hidden");
     if (qrBackdrop) qrBackdrop.classList.add("hidden");
   }
 
   if (qrCloseBtn) qrCloseBtn.addEventListener("click", closeQrModal);
   if (qrBackdrop) qrBackdrop.addEventListener("click", closeQrModal);
-
   if (copyApkLinkBtn) {
     copyApkLinkBtn.addEventListener("click", () => {
-      playSound("click");
       navigator.clipboard.writeText("https://diplomamate.bd/download/diplomamate-v2.4.apk");
-      showToast("APK Direct Download link copied to clipboard!", "success");
+      showToast("APK link copied to clipboard!", "success");
     });
   }
 
-  // ==========================================
-  // 14. CGPA Transcript Export Modal
-  // ==========================================
+  // Transcript Modal
   const transcriptModal = document.getElementById("transcript-modal");
   const transcriptBackdrop = document.getElementById("transcript-backdrop");
   const transcriptCloseBtn = document.getElementById("transcript-close-btn");
@@ -1369,11 +946,11 @@ document.addEventListener("DOMContentLoaded", () => {
           const val = parseFloat(input.value);
           const score = !isNaN(val) ? val.toFixed(2) : "—";
           return `
-          <tr class="border-b border-slate-700/60 text-xs">
-            <td class="py-2 font-semibold text-slate-300">Semester ${sem}</td>
-            <td class="py-2 text-center font-mono text-cyan-400 font-bold">${score}</td>
-            <td class="py-2 text-center font-mono text-slate-400">${weights[idx]}%</td>
-            <td class="py-2 text-center text-emerald-400 font-semibold">${!isNaN(val) ? (val * (weights[idx] / 100)).toFixed(3) : "—"}</td>
+          <tr class="border-b border-slate-200 text-xs">
+            <td class="py-2.5 font-medium text-slate-800">Semester ${sem}</td>
+            <td class="py-2.5 text-center font-mono text-blue-700 font-semibold">${score}</td>
+            <td class="py-2.5 text-center font-mono text-slate-500">${weights[idx]}%</td>
+            <td class="py-2.5 text-center text-slate-900 font-semibold">${!isNaN(val) ? (val * (weights[idx] / 100)).toFixed(3) : "—"}</td>
           </tr>
         `;
         })
@@ -1385,7 +962,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeTranscriptModal() {
-    playSound("click");
     if (transcriptModal) transcriptModal.classList.add("hidden");
     if (transcriptBackdrop) transcriptBackdrop.classList.add("hidden");
   }
@@ -1394,14 +970,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (transcriptBackdrop) transcriptBackdrop.addEventListener("click", closeTranscriptModal);
   if (printTranscriptBtn) {
     printTranscriptBtn.addEventListener("click", () => {
-      playSound("click");
       window.print();
     });
   }
 
-  // ==========================================
-  // 15. Notice Document Viewer Modal
-  // ==========================================
+  // Notice Viewer Modal
   const noticeModal = document.getElementById("notice-modal");
   const noticeBackdrop = document.getElementById("notice-backdrop");
   const noticeCloseBtn = document.getElementById("notice-close-btn");
@@ -1419,7 +992,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeNoticeModal() {
-    playSound("click");
     if (noticeModal) noticeModal.classList.add("hidden");
     if (noticeBackdrop) noticeBackdrop.classList.add("hidden");
   }
@@ -1428,15 +1000,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (noticeBackdrop) noticeBackdrop.addEventListener("click", closeNoticeModal);
   if (noticeDownloadBtn) {
     noticeDownloadBtn.addEventListener("click", () => {
-      playSound("calc");
-      showToast("Downloading verified BTEB gazette notice (PDF)...", "success");
+      showToast("Downloading verified notice document (PDF)...", "success");
       setTimeout(() => closeNoticeModal(), 800);
     });
   }
 
-  // ==========================================
-  // 16. Policy & Disclaimer Modal
-  // ==========================================
+  // Policy Modal
   const policyModal = document.getElementById("policy-modal");
   const policyBackdrop = document.getElementById("policy-backdrop");
   const policyCloseBtn = document.getElementById("policy-close-btn");
@@ -1450,7 +1019,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closePolicyModal() {
-    playSound("click");
     if (policyModal) policyModal.classList.add("hidden");
     if (policyBackdrop) policyBackdrop.classList.add("hidden");
   }
@@ -1461,49 +1029,62 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".footer-policy-link").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      playSound("open");
       const type = link.dataset.type;
       if (type === "privacy") {
         openPolicyModal(
           "Privacy Policy",
-          `<p class="mb-3">DiplomaMate is committed to protecting student privacy. We operate as an open educational utility and do not sell or collect private telemetry.</p>
-           <p class="mb-3">CGPA computations and routine entries are performed completely client-side in your web browser or local device cache.</p>`
+          `<p class="mb-3 text-slate-700">DiplomaMate respects student privacy. We operate as an open educational utility and do not collect, sell, or monitor personal identifiable telemetry.</p>
+           <p class="mb-3 text-slate-700">CGPA computations and routine entries are performed completely client-side in your web browser.</p>`
         );
       } else if (type === "terms") {
         openPolicyModal(
           "Terms of Service",
-          `<p class="mb-3">All syllabus documentation, subject codes, and academic regulations displayed on DiplomaMate are published for non-commercial educational guidance.</p>
-           <p class="mb-3">Diploma students, instructors, and researchers are free to access and reference this repository under open academic fair-use guidelines.</p>`
+          `<p class="mb-3 text-slate-700">All syllabus documentation, subject codes, and academic regulations displayed on DiplomaMate are published for non-commercial educational guidance.</p>
+           <p class="mb-3 text-slate-700">Diploma students, instructors, and researchers are free to access and reference this repository under open academic fair-use guidelines.</p>`
         );
       } else if (type === "disclaimer") {
         openPolicyModal(
           "BTEB Official Disclaimer",
-          `<p class="mb-3">DiplomaMate is an independent student academic resource aligned with official curricula published by the Bangladesh Technical Education Board (BTEB).</p>
-           <p class="mb-3">For binding legal circulars, official result sheets, and final transcripts, please consult official portals at <a href="http://www.bteb.gov.bd" target="_blank" class="text-cyan-400 underline">bteb.gov.bd</a>.</p>`
+          `<p class="mb-3 text-slate-700">DiplomaMate is an independent student academic resource aligned with official curricula published by the Bangladesh Technical Education Board (BTEB).</p>
+           <p class="mb-3 text-slate-700">For binding legal circulars, official result sheets, and final transcripts, please consult official portals at <a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">bteb.gov.bd</a>.</p>`
         );
       }
     });
   });
 
+  // Global ESC Key Close
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeCollegeDrawer();
+      closeSyllabusModal();
+      closePortalModal();
+      closeQrModal();
+      closeTranscriptModal();
+      closeNoticeModal();
+      closePolicyModal();
+    }
+  });
+
   // ==========================================
-  // 17. Toast Notification Helper
+  // 9. Toast Notification Helper
   // ==========================================
   function showToast(message, type = "info") {
     const container = document.getElementById("toast-container");
     if (!container) return;
 
     const toast = document.createElement("div");
-    toast.className = `toast-msg flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border text-sm backdrop-blur-xl ${
+    toast.className = `toast-msg flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium ${
       type === "success"
-        ? "bg-emerald-950/90 text-emerald-200 border-emerald-500/40"
+        ? "bg-emerald-50 text-emerald-900 border-emerald-200"
         : type === "error"
-        ? "bg-rose-950/90 text-rose-200 border-rose-500/40"
-        : "bg-slate-900/90 text-cyan-200 border-cyan-500/40"
+        ? "bg-rose-50 text-rose-900 border-rose-200"
+        : "bg-white text-slate-800 border-slate-200"
     }`;
 
     const iconName = type === "success" ? "check-circle" : type === "error" ? "alert-circle" : "info";
+    const iconColor = type === "success" ? "text-emerald-600" : type === "error" ? "text-rose-600" : "text-blue-600";
     toast.innerHTML = `
-      <i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i>
+      <i data-lucide="${iconName}" class="w-4 h-4 shrink-0 ${iconColor}"></i>
       <span>${message}</span>
     `;
 
@@ -1512,17 +1093,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       toast.style.opacity = "0";
-      toast.style.transform = "translateY(-10px)";
-      toast.style.transition = "all 0.3s ease";
-      setTimeout(() => toast.remove(), 300);
-    }, 3200);
+      toast.style.transform = "translateY(-8px)";
+      toast.style.transition = "all 0.25s ease";
+      setTimeout(() => toast.remove(), 250);
+    }, 2800);
   }
 
-  // Make showToast globally available
   window.showToast = showToast;
 
   // ==========================================
-  // 18. Smooth Scroll & Mobile Navigation
+  // 10. Smooth Scroll & Mobile Navigation
   // ==========================================
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
@@ -1531,18 +1111,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const targetEl = document.querySelector(targetId);
       if (targetEl) {
         e.preventDefault();
-        playSound("click");
         targetEl.scrollIntoView({ behavior: "smooth" });
       }
     });
   });
 
-  // Mobile Menu Toggle and Auto-Close on Item Click
   const mobileMenuBtn = document.getElementById("mobile-menu-btn");
   const mobileNavMenu = document.getElementById("mobile-nav-menu");
   if (mobileMenuBtn && mobileNavMenu) {
     mobileMenuBtn.addEventListener("click", () => {
-      playSound("click");
       mobileNavMenu.classList.toggle("hidden");
     });
 
@@ -1556,14 +1133,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // Initialization Sequence
   // ==========================================
-  initThreeBackground();
   initBangladeshMap();
   initDepartmentExplorer();
   initCGPACalculator();
   initNoticeBoard();
-  initMobileMockup();
-  setupTiltEffects();
+  initMobileAppCTA();
   lucide.createIcons();
 
-  console.log("🚀 DiplomaMate BTEB Portal initialized with Free OpenStreetMap Leaflet Engine.");
+  console.log("✅ DiplomaMate BTEB Portal initialized with clean educational interface.");
 });

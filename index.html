@@ -1,26 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiplomaMate - BTEB Polytechnic Portal | 3D Educational Platform</title>
-  <meta name="description" content="Explore 50+ Bangladesh Government Polytechnic Institutes across 8 divisions in interactive 3D, navigate 2016 & 2022 BTEB syllabi, calculate CGPA, and access career circulars.">
+  <title>DiplomaMate - BTEB Polytechnic Portal | Bangladesh Technical Education</title>
+  <meta name="description" content="Clean, comprehensive academic portal for Bangladesh Government Polytechnic Institutes, BTEB 2016 & 2022 regulation syllabi, official CGPA calculator, and circulars.">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             brand: {
-              cyan: '#06b6d4',
-              emerald: '#10b981',
-              blue: '#3b82f6',
-              purple: '#8b5cf6',
-              dark: '#060913',
-              card: 'rgba(15, 23, 42, 0.75)'
+              navy: '#0f2744',
+              blue: '#1d4ed8',
+              'blue-hover': '#1e40af',
+              emerald: '#059669',
+              slate: '#f8fafc'
             }
           },
           fontFamily: {
@@ -39,1039 +37,870 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Three.js CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-[#060913] text-slate-100 antialiased selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- Three.js 3D Background Canvas -->
-  <canvas id="threejs-canvas"></canvas>
-
-  <!-- Main App Wrapper -->
-  <div class="relative z-10 flex flex-col min-h-screen">
-
-    <!-- ==========================================
-         1. Sticky Glassmorphism Navbar
-         ========================================== -->
-    <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-
-          <!-- Brand Logo -->
-          <a href="#" class="flex items-center gap-3 group">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-600 p-[1.5px] shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-shadow">
-              <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <i data-lucide="compass" class="w-6 h-6 text-cyan-400 group-hover:rotate-45 transition-transform duration-300"></i>
-              </div>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">DiplomaMate</span>
-                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-950/90 text-cyan-400 border border-cyan-700/60 font-mono">BTEB 3D</span>
-              </div>
-              <span class="text-[11px] text-slate-400 font-medium block">Bangladesh Polytechnic Portal</span>
-            </div>
-          </a>
-
-          <!-- Navigation Links -->
-          <nav class="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800/80 backdrop-blur-md">
-            <a href="#interactive-map" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition-colors flex items-center gap-1.5">
-              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-cyan-400"></i> 3D Map
-            </a>
-            <a href="#departments-section" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition-colors flex items-center gap-1.5">
-              <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i> Booklist Explorer
-            </a>
-            <a href="#cgpa-calculator-section" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition-colors flex items-center gap-1.5">
-              <i data-lucide="calculator" class="w-3.5 h-3.5 text-purple-400"></i> CGPA Calc
-            </a>
-            <a href="#notice-section" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition-colors flex items-center gap-1.5">
-              <i data-lucide="bell" class="w-3.5 h-3.5 text-amber-400"></i> Notices & Jobs
-            </a>
-            <a href="#mobile-app-section" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition-colors flex items-center gap-1.5">
-              <i data-lucide="smartphone" class="w-3.5 h-3.5 text-sky-400"></i> App
-            </a>
-          </nav>
-
-          <!-- Right Action Controls -->
-          <div class="flex items-center gap-2.5">
-            <!-- Search Shortcut (Ctrl+K) -->
-            <button id="open-global-search-btn" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-400 hover:text-slate-200 hover:border-cyan-500/40 transition-colors shadow-inner">
-              <i data-lucide="search" class="w-3.5 h-3.5 text-cyan-400"></i>
-              <span>Quick Search...</span>
-              <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-slate-700 text-slate-300">Ctrl K</kbd>
-            </button>
-
-            <!-- Audio Synthesizer Toggle -->
-            <button id="audio-toggle-btn" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 hover:border-cyan-500/40 transition-colors text-slate-400 hover:text-cyan-400" title="Toggle Sci-Fi Audio FX">
-              <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i>
-            </button>
-
-            <!-- Mobile Menu Toggle Button -->
-            <button id="mobile-menu-btn" class="md:hidden w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-cyan-400">
-              <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
-          </div>
-        </div>
+  <!-- ==========================================
+       1. Top Educational Institution Header
+       ========================================== -->
+  <div class="bg-[#0f2744] text-white border-b border-slate-800 text-xs py-2 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>Bangladesh Technical Education Board (BTEB) &bull; Academic Directory</span>
       </div>
-
-      <!-- Mobile Dropdown Menu -->
-      <div id="mobile-nav-menu" class="hidden md:hidden border-t border-slate-800 bg-slate-950/95 px-4 py-3 space-y-1">
-        <a href="#interactive-map" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">3D Map & Polytechnics</a>
-        <a href="#departments-section" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">15 BTEB Technologies</a>
-        <a href="#cgpa-calculator-section" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">CGPA Calculator</a>
-        <a href="#notice-section" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">Notice Board & Circulars</a>
-        <a href="#mobile-app-section" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800">DiplomaMate App</a>
+      <div class="flex items-center gap-4 text-slate-300 text-[11px]">
+        <span>Academic Year: 2026</span>
+        <span>&bull;</span>
+        <a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1">
+          <span>bteb.gov.bd</span>
+          <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
       </div>
-    </header>
-
-    <!-- ==========================================
-         2. Hero Section & Interactive 3D Bangladesh Map
-         ========================================== -->
-    <section id="interactive-map" class="relative pt-8 pb-16 overflow-hidden">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <!-- Hero Header Headline -->
-        <div class="text-center max-w-3xl mx-auto mb-8">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-semibold mb-4 backdrop-blur-md">
-            <span class="live-pulse-dot"></span>
-            <span>Next-Gen Technical Education Portal</span>
-            <span class="text-slate-500">&bull;</span>
-            <span class="text-emerald-400">BTEB 2016 & 2022 Reg.</span>
-          </div>
-
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 leading-tight">
-            Interactive 3D Gateway to <br>
-            <span class="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent neon-glow-text">
-              Bangladesh Polytechnic Education
-            </span>
-          </h1>
-
-          <p class="mt-4 text-sm sm:text-base text-slate-300/90 leading-relaxed font-normal">
-            Explore 50+ Government Polytechnic Institutes across 8 divisions with live GPS markers, browse 15 BTEB engineering curricula, compute official Diploma CGPA, and track government engineering career opportunities.
-          </p>
-
-          <!-- Quick Stats Counter Row -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-            <div class="glass-panel p-3 rounded-xl border border-slate-800/80">
-              <div class="text-2xl font-extrabold font-mono text-cyan-400">50+</div>
-              <div class="text-xs text-slate-400">Govt Polytechnics</div>
-            </div>
-            <div class="glass-panel p-3 rounded-xl border border-slate-800/80">
-              <div class="text-2xl font-extrabold font-mono text-emerald-400">15+</div>
-              <div class="text-xs text-slate-400">BTEB Technologies</div>
-            </div>
-            <div class="glass-panel p-3 rounded-xl border border-slate-800/80">
-              <div class="text-2xl font-extrabold font-mono text-purple-400">120K+</div>
-              <div class="text-xs text-slate-400">Diploma Engineers</div>
-            </div>
-            <div class="glass-panel p-3 rounded-xl border border-slate-800/80">
-              <div class="text-2xl font-extrabold font-mono text-amber-400">8</div>
-              <div class="text-xs text-slate-400">National Divisions</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Map Control Center Bar (Division Filters & Live Search) -->
-        <div class="glass-panel-glow rounded-2xl p-4 sm:p-5 mb-6 backdrop-blur-xl border border-cyan-500/30">
-          <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-
-            <!-- Division Filters -->
-            <div class="w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
-              <div class="flex items-center gap-1.5 min-w-max">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
-                  <i data-lucide="filter" class="w-3.5 h-3.5 text-cyan-400"></i> Divisions:
-                </span>
-                <button class="division-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-cyan-300 border-cyan-400 bg-cyan-500/20" data-division="All">All Divisions</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Dhaka">Dhaka</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Chattogram">Chattogram</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Rajshahi">Rajshahi</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Khulna">Khulna</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Barishal">Barishal</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Sylhet">Sylhet</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Rangpur">Rangpur</button>
-                <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold glass-pill text-slate-300" data-division="Mymensingh">Mymensingh</button>
-              </div>
-            </div>
-
-            <!-- Live Search Bar, 3D Toggle & Map Theme Switch -->
-            <div class="w-full lg:w-auto flex items-center flex-wrap gap-2.5">
-              <!-- Live Search Input -->
-              <div class="relative flex-1 sm:w-64 min-w-[180px]">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400"></i>
-                <input 
-                  type="text" 
-                  id="map-search-input" 
-                  placeholder="Search college, district, code..." 
-                  class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors"
-                >
-                <!-- Autocomplete Dropdown -->
-                <div id="map-search-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-slate-900/95 border border-cyan-500/40 rounded-xl shadow-2xl max-h-64 overflow-y-auto z-50 backdrop-blur-xl"></div>
-              </div>
-
-              <!-- Map Color Theme Toggle (Cyber Dark / Standard OSM) -->
-              <button id="toggle-map-theme-btn" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors flex items-center gap-1.5 shrink-0" title="Toggle Map Color Mode (Cyber Dark / Standard OSM)">
-                <i data-lucide="palette" class="w-4 h-4 text-emerald-400"></i>
-                <span class="text-xs font-semibold">Cyber Dark: ON</span>
-              </button>
-
-              <!-- 3D Perspective Mode Toggle -->
-              <button id="toggle-3d-map-btn" class="px-3 py-2 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-300 hover:bg-slate-800 transition-colors flex items-center gap-1.5 shrink-0" title="Toggle 3D Tilt Perspective">
-                <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
-                <span class="text-xs font-semibold">3D Tilt: ON</span>
-              </button>
-
-              <!-- Reset Map View -->
-              <button id="reset-map-view-btn" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center hover:bg-slate-800 text-slate-300 hover:text-cyan-400 shrink-0" title="Reset Camera">
-                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3D Map Viewport Frame -->
-        <div id="map-perspective-container" class="map-perspective-wrapper is-3d relative rounded-3xl overflow-hidden border border-cyan-500/30 bg-slate-950 shadow-2xl transition-all duration-500">
-          
-          <!-- Top HUD Overlay -->
-          <div class="absolute top-4 left-4 z-20 flex items-center gap-2 pointer-events-none">
-            <span id="map-institute-count-badge" class="px-3 py-1 rounded-full bg-slate-950/85 border border-cyan-500/40 text-cyan-300 font-mono text-xs backdrop-blur-md flex items-center gap-2">
-              <span class="live-pulse-dot"></span> 50 Government Polytechnics
-            </span>
-          </div>
-
-          <div class="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-2 pointer-events-none">
-            <span class="px-3 py-1 rounded-full bg-slate-950/85 border border-slate-700 text-slate-300 font-mono text-[11px] backdrop-blur-md">
-              <i data-lucide="crosshair" class="w-3.5 h-3.5 inline mr-1 text-emerald-400"></i> Click any pin marker for details
-            </span>
-          </div>
-
-          <!-- Leaflet Map Canvas Container (with OpenStreetMap free layer) -->
-          <div id="bangladesh-map" class="w-full h-[540px] sm:h-[620px] osm-cyber-tiles"></div>
-
-          <!-- Bottom Map Legend Bar -->
-          <div class="absolute bottom-3 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-slate-800 text-xs">
-            <div class="flex items-center gap-4 text-slate-300">
-              <div class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></span>
-                <span>Govt Polytechnic Pin</span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>1st & 2nd Shift Available</span>
-              </div>
-            </div>
-            <div class="text-slate-400 text-[11px] flex items-center gap-1.5">
-              <i data-lucide="globe" class="w-3.5 h-3.5 text-cyan-400"></i>
-              <span>Powered by <strong>OpenStreetMap</strong> (100% Free & Open-Source)</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================
-         3. 3D Department & Booklist Explorer
-         ========================================== -->
-    <section id="departments-section" class="py-16 relative bg-gradient-to-b from-transparent via-slate-950/60 to-transparent">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <!-- Section Header -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-300 text-xs font-semibold mb-3">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-purple-400"></i>
-              <span>Official BTEB Curriculum & Syllabi</span>
-            </div>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-              3D Department & Booklist Explorer
-            </h2>
-            <p class="text-sm text-slate-400 mt-2 max-w-xl">
-              Browse all 15 BTEB Technologies with comprehensive 8-semester course codes, credit distribution, and theory/practical contact hours.
-            </p>
-          </div>
-
-          <!-- Regulation Toggle & Search -->
-          <div class="flex flex-wrap items-center gap-3">
-            <!-- Regulation Toggle Switch -->
-            <div class="flex items-center bg-slate-900 p-1 rounded-2xl border border-slate-800">
-              <button id="reg-2022-btn" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30">
-                2022 Regulation
-              </button>
-              <button id="reg-2016-btn" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-slate-200">
-                2016 Regulation
-              </button>
-            </div>
-
-            <!-- Department Filter Search -->
-            <div class="relative">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input 
-                type="text" 
-                id="dept-search-input" 
-                placeholder="Filter 15 technologies..." 
-                class="pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors w-48"
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- 15 Technologies 3D Cards Grid -->
-        <div id="departments-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Dynamic rendering via main.js -->
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================
-         4. Student Smart Hub (CGPA, Notices, App CTA)
-         ========================================== -->
-    <section id="smart-hub-section" class="py-16 relative">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <div class="text-center max-w-2xl mx-auto mb-12">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold mb-3">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <span>Student Success & Career Acceleration</span>
-          </div>
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-            Student Smart Hub
-          </h2>
-          <p class="text-sm text-slate-400 mt-2">
-            Calculate your official diploma GPA/CGPA, stay ahead with BTEB notices, and access the DiplomaMate mobile toolkit.
-          </p>
-        </div>
-
-        <!-- Grid: 2 Column Layout (CGPA Calculator & Notices) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
-
-          <!-- 4.1 BTEB CGPA Calculator (7 Cols) -->
-          <div id="cgpa-calculator-section" class="lg:col-span-7 glass-panel-glow rounded-3xl p-6 sm:p-8 border border-cyan-500/30 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-6">
-                <div>
-                  <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-                    <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
-                    BTEB Diploma CGPA Calculator
-                  </h3>
-                  <p class="text-xs text-slate-400 mt-1">Official BTEB 8-Semester weighted percentage formula</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button id="preset-cgpa-high-btn" class="px-2.5 py-1 rounded-lg text-xs bg-cyan-950 text-cyan-300 border border-cyan-700 hover:bg-cyan-900 transition-colors">
-                    Sample Honors
-                  </button>
-                  <button id="clear-cgpa-btn" class="px-2.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">
-                    Reset
-                  </button>
-                </div>
-              </div>
-
-              <!-- 8 Semester Input Grid -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                <!-- Semester 1 to 8 inputs with weightage labels -->
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">1st Sem</span>
-                    <span class="text-[10px] text-cyan-400 font-mono">5%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-cyan-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">2nd Sem</span>
-                    <span class="text-[10px] text-cyan-400 font-mono">5%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-cyan-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">3rd Sem</span>
-                    <span class="text-[10px] text-cyan-400 font-mono">5%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-cyan-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">4th Sem</span>
-                    <span class="text-[10px] text-cyan-400 font-mono">10%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-cyan-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">5th Sem</span>
-                    <span class="text-[10px] text-emerald-400 font-mono">15%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-emerald-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">6th Sem</span>
-                    <span class="text-[10px] text-emerald-400 font-mono">20%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-emerald-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">7th Sem</span>
-                    <span class="text-[10px] text-emerald-400 font-mono">25%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-emerald-400">
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div class="flex justify-between items-center text-xs mb-1">
-                    <span class="font-bold text-slate-300">8th Sem</span>
-                    <span class="text-[10px] text-purple-400 font-mono">15%</span>
-                  </div>
-                  <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-100 focus:outline-none focus:border-purple-400">
-                </div>
-              </div>
-
-              <!-- Gauge Result Visualization -->
-              <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center gap-6">
-                <!-- SVG Gauge -->
-                <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
-                  <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="transparent" stroke="#1e293b" stroke-width="8"></circle>
-                    <circle id="cgpa-gauge-circle" cx="50" cy="50" r="42" fill="transparent" stroke="url(#cyanEmeraldGradient)" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" class="cgpa-gauge-fill"></circle>
-                    <defs>
-                      <linearGradient id="cyanEmeraldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#06b6d4" />
-                        <stop offset="100%" stop-color="#10b981" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span id="cgpa-gauge-value" class="text-2xl font-mono font-extrabold text-cyan-400">0.00</span>
-                    <span class="text-[9px] uppercase tracking-wider text-slate-400">Scale 4.00</span>
-                  </div>
-                </div>
-
-                <!-- Standing Text & Remarks -->
-                <div class="flex-1 text-center sm:text-left">
-                  <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                    <span class="text-xs text-slate-400 font-medium">Academic Standing:</span>
-                    <span id="cgpa-letter-grade" class="font-bold text-emerald-400">Awaiting Inputs</span>
-                  </div>
-                  <p id="cgpa-remark-text" class="text-xs text-slate-300 leading-relaxed">
-                    Type your Semester 1 to 8 GPAs above. The calculator will automatically apply BTEB official percentage weightages.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-              <button id="calculate-cgpa-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
-                <i data-lucide="check" class="w-4 h-4"></i> Calculate CGPA
-              </button>
-
-              <button id="export-cgpa-btn" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors flex items-center gap-1.5">
-                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-cyan-400"></i> View Transcript Card
-              </button>
-            </div>
-          </div>
-
-          <!-- 4.2 Notice Board & Government Job Circulars (5 Cols) -->
-          <div id="notice-section" class="lg:col-span-5 glass-panel rounded-3xl p-6 border border-slate-800 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-                  <i data-lucide="bell" class="w-5 h-5 text-amber-400"></i>
-                  Notices & Job Circulars
-                </h3>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono">Live BTEB</span>
-              </div>
-
-              <!-- Notice Category Filter Tabs -->
-              <div class="flex items-center gap-1 mb-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto">
-                <button class="notice-tab-btn active px-3 py-1 rounded-lg font-semibold text-cyan-300 bg-cyan-500/10 border-b-2 border-cyan-400 shrink-0" data-category="all">All</button>
-                <button class="notice-tab-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-category="exam">Exam & Routine</button>
-                <button class="notice-tab-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-category="job">Govt Jobs</button>
-                <button class="notice-tab-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-category="board">Board Directives</button>
-              </div>
-
-              <!-- Notices List -->
-              <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-
-                <!-- Notice Card 1 -->
-                <div class="notice-item-card p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-cyan-500/40 transition-colors" data-category="exam">
-                  <div class="flex items-center justify-between text-[11px] mb-1">
-                    <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-semibold">Exam Routine</span>
-                    <span class="text-slate-500 font-mono">2026-11-05</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-200 line-clamp-1">Diploma in Engineering 2nd, 4th, 6th & 8th Semester Final Exam Schedule</h4>
-                  <p class="text-[11px] text-slate-400 mt-1">Official BTEB published comprehensive timetable for all technology theory and practical examinations.</p>
-                  <button class="view-notice-btn mt-2 text-[11px] text-cyan-400 hover:underline flex items-center gap-1" data-title="Diploma Semester Final Exam Schedule 2026" data-date="2026-11-05" data-org="Bangladesh Technical Education Board (BTEB)" data-desc="The final examination routine for 2nd, 4th, 6th and 8th semester students of 2016 and 2022 Regulations has been released. Theoretical examinations commence from December 1st, followed by practical assessments.">
-                    <i data-lucide="file-text" class="w-3 h-3"></i> View Official Notice &rarr;
-                  </button>
-                </div>
-
-                <!-- Notice Card 2 -->
-                <div class="notice-item-card p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/40 transition-colors" data-category="job">
-                  <div class="flex items-center justify-between text-[11px] mb-1">
-                    <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold">BPDB / PGCB Job</span>
-                    <span class="text-slate-500 font-mono">2026-11-02</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-200 line-clamp-1">Power Grid (PGCB) 140 Sub-Assistant Engineer (Electrical/Civil/Mechanical)</h4>
-                  <p class="text-[11px] text-slate-400 mt-1">Recruitment circular for 10th grade Government Engineering posts. Age limit: 30 years.</p>
-                  <button class="view-notice-btn mt-2 text-[11px] text-emerald-400 hover:underline flex items-center gap-1" data-title="PGCB 140 Sub-Assistant Engineer Recruitment Circular" data-date="2026-11-02" data-org="Power Grid Company of Bangladesh (PGCB)" data-desc="PGCB invites applications from dynamic Diploma in Electrical, Civil, and Mechanical Engineering graduates with at least CGPA 3.00 out of 4.00. Salary Grade: 10 with government power allowances.">
-                    <i data-lucide="briefcase" class="w-3 h-3"></i> View Circular Details &rarr;
-                  </button>
-                </div>
-
-                <!-- Notice Card 3 -->
-                <div class="notice-item-card p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-purple-500/40 transition-colors" data-category="job">
-                  <div class="flex items-center justify-between text-[11px] mb-1">
-                    <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-800 font-semibold">PWD / LGED Job</span>
-                    <span class="text-slate-500 font-mono">2026-10-28</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-200 line-clamp-1">Public Works Department (PWD) 85 Sub-Assistant Engineer (Civil/Electrical)</h4>
-                  <p class="text-[11px] text-slate-400 mt-1">Direct recruitment through BPSC for Diploma Engineering graduates.</p>
-                  <button class="view-notice-btn mt-2 text-[11px] text-purple-400 hover:underline flex items-center gap-1" data-title="PWD 85 Sub-Assistant Engineer Circular via BPSC" data-date="2026-10-28" data-org="Bangladesh Public Service Commission (BPSC)" data-desc="The Ministry of Housing and Public Works announces 85 permanent vacancies for Sub-Assistant Engineers. Eligible disciplines: Civil and Electrical Technology. Applications accepted via the BPSC Teletalk portal.">
-                    <i data-lucide="briefcase" class="w-3 h-3"></i> View Circular Details &rarr;
-                  </button>
-                </div>
-
-                <!-- Notice Card 4 -->
-                <div class="notice-item-card p-3 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/40 transition-colors" data-category="board">
-                  <div class="flex items-center justify-between text-[11px] mb-1">
-                    <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 font-semibold">Industrial Training</span>
-                    <span class="text-slate-500 font-mono">2026-10-20</span>
-                  </div>
-                  <h4 class="text-xs font-bold text-slate-200 line-clamp-1">8th Semester Industrial Attachment Guidelines & Company Placement List</h4>
-                  <p class="text-[11px] text-slate-400 mt-1">Guidelines for mandatory factory/enterprise attachment stipend and logbook submission.</p>
-                  <button class="view-notice-btn mt-2 text-[11px] text-amber-400 hover:underline flex items-center gap-1" data-title="8th Semester Industrial Training Guidelines & Policy" data-date="2026-10-20" data-org="BTEB Curriculum & Industry Cell" data-desc="All 8th semester final year students must complete a mandatory 3-month industrial attachment at accredited industrial corporations. Monthly government stipend of BDT 1,500 will be disbursed through mobile banking.">
-                    <i data-lucide="file-text" class="w-3 h-3"></i> Read Internship Manual &rarr;
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-slate-800 text-center">
-              <span class="text-xs text-slate-500">Live feeds synchronized with BTEB Official Portal (<a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">bteb.gov.bd</a>)</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- ==========================================
-             4.3 3D Floating Mobile Mockup (DiplomaMate App Download CTA)
-             ========================================== -->
-        <div id="mobile-app-section" class="relative rounded-3xl overflow-hidden glass-panel-glow border border-cyan-500/30 p-8 sm:p-12">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-
-            <!-- Left Description -->
-            <div class="lg:col-span-7">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-xs font-semibold mb-4">
-                <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-                <span>DiplomaMate Android Application</span>
-              </div>
-
-              <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-                Empower Your Polytechnic Journey On The Go
-              </h3>
-
-              <p class="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed">
-                Download the official <strong>DiplomaMate Android App</strong>. Carry the entire BTEB 2016 & 2022 syllabus in your pocket, access solved previous board questions, monitor class routines offline, and receive real-time exam notifications.
-              </p>
-
-              <!-- App Features Bullet Points -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-xs text-slate-300">
-                <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <i data-lucide="wifi-off" class="w-4 h-4 text-cyan-400"></i>
-                  <span>100% Offline Booklists & Syllabus</span>
-                </div>
-                <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <i data-lucide="book-marked" class="w-4 h-4 text-emerald-400"></i>
-                  <span>5-Year Board Question Bank</span>
-                </div>
-                <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <i data-lucide="calendar" class="w-4 h-4 text-purple-400"></i>
-                  <span>Interactive Class Routine Manager</span>
-                </div>
-                <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <i data-lucide="bell-ring" class="w-4 h-4 text-amber-400"></i>
-                  <span>Direct Push Notice Alerts</span>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="mt-8 flex flex-wrap items-center gap-4">
-                <button id="download-apk-btn" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-500 text-slate-950 font-bold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2.5">
-                  <i data-lucide="download" class="w-5 h-5"></i>
-                  <span>Download APK (v2.4 - Free)</span>
-                </button>
-
-                <button id="view-qr-btn" class="px-5 py-3.5 rounded-2xl bg-slate-900 border border-slate-700 text-slate-200 text-sm font-semibold hover:border-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-2">
-                  <i data-lucide="qr-code" class="w-5 h-5 text-cyan-400"></i>
-                  <span>Scan Mobile QR</span>
-                </button>
-              </div>
-
-              <div class="mt-4 text-xs text-slate-400 flex items-center gap-3">
-                <span>Requires Android 7.0+</span> &bull; 
-                <span>File Size: 18.4 MB</span> &bull; 
-                <span class="text-emerald-400 font-semibold">100% Virus & Ad-Free</span>
-              </div>
-            </div>
-
-            <!-- Right: 3D Floating Mobile Phone Mockup -->
-            <div class="lg:col-span-5 flex justify-center phone-mockup-wrapper">
-              <div id="floating-app-phone" class="floating-phone w-64 sm:w-72 h-[480px] rounded-[40px] bg-slate-950 p-3 border-4 border-slate-700 shadow-[0_25px_60px_-15px_rgba(6,182,212,0.35)] relative overflow-hidden">
-                
-                <!-- Phone Speaker / Camera Notch -->
-                <div class="w-24 h-4 bg-slate-900 rounded-full mx-auto mb-3 flex items-center justify-center">
-                  <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
-                </div>
-
-                <!-- Simulated App Screen -->
-                <div class="w-full h-[calc(100%-28px)] rounded-[28px] bg-gradient-to-b from-slate-900 to-slate-950 p-4 border border-slate-800/80 flex flex-col justify-between overflow-hidden text-xs">
-                  
-                  <!-- App Header -->
-                  <div>
-                    <div class="flex items-center justify-between mb-4">
-                      <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs">DM</div>
-                        <div>
-                          <div class="font-bold text-slate-100 text-xs">DiplomaMate</div>
-                          <div class="text-[9px] text-cyan-400 font-mono">BTEB Student App</div>
-                        </div>
-                      </div>
-                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    </div>
-
-                    <!-- App Home Widget -->
-                    <div class="p-3 rounded-xl bg-gradient-to-r from-cyan-950/80 to-blue-950/80 border border-cyan-700/50 mb-3">
-                      <div class="text-[10px] text-cyan-300 font-semibold uppercase">Computer Technology (CST)</div>
-                      <div class="text-sm font-bold text-slate-100 mt-0.5">5th Semester &bull; 2022 Reg</div>
-                      <div class="mt-2 text-[10px] text-slate-300">Next Class: Operating Systems (Linux)</div>
-                    </div>
-
-                    <!-- Mini App Modules -->
-                    <div class="grid grid-cols-2 gap-2 text-[11px]">
-                      <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-center">
-                        <i data-lucide="book" class="w-4 h-4 mx-auto text-emerald-400 mb-1"></i>
-                        <span class="text-slate-300">Booklist</span>
-                      </div>
-                      <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-center">
-                        <i data-lucide="file-check" class="w-4 h-4 mx-auto text-cyan-400 mb-1"></i>
-                        <span class="text-slate-300">Questions</span>
-                      </div>
-                      <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-center">
-                        <i data-lucide="pie-chart" class="w-4 h-4 mx-auto text-purple-400 mb-1"></i>
-                        <span class="text-slate-300">CGPA Calc</span>
-                      </div>
-                      <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-center">
-                        <i data-lucide="clock" class="w-4 h-4 mx-auto text-amber-400 mb-1"></i>
-                        <span class="text-slate-300">Routine</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- App Bottom Floating CTA -->
-                  <div class="p-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-center text-[11px] shadow-lg">
-                    Open Question Bank (Solved)
-                  </div>
-
-                </div>
-
-                <!-- Glass Glare Reflection -->
-                <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================
-         5. Footer
-         ========================================== -->
-    <footer class="mt-auto border-t border-slate-800 bg-slate-950/90 backdrop-blur-xl py-12 text-xs text-slate-400">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-
-          <!-- Brand Column -->
-          <div class="space-y-3">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">DM</div>
-              <span class="text-base font-bold text-slate-100">DiplomaMate</span>
-            </div>
-            <p class="leading-relaxed">
-              The comprehensive open-access 3D educational platform designed for diploma in engineering students across Bangladesh.
-            </p>
-            <div class="text-[11px] text-cyan-400 font-mono">
-              Aligned with BTEB Regulations 2016 & 2022
-            </div>
-          </div>
-
-          <!-- Quick Navigation -->
-          <div>
-            <h4 class="font-bold text-slate-200 text-sm mb-3">Core Modules</h4>
-            <ul class="space-y-2">
-              <li><a href="#interactive-map" class="hover:text-cyan-400 transition-colors">3D Bangladesh Polytechnic Map</a></li>
-              <li><a href="#departments-section" class="hover:text-cyan-400 transition-colors">15 BTEB Technology Booklists</a></li>
-              <li><a href="#cgpa-calculator-section" class="hover:text-cyan-400 transition-colors">BTEB Official CGPA Calculator</a></li>
-              <li><a href="#notice-section" class="hover:text-cyan-400 transition-colors">Exam Routine & Job Circulars</a></li>
-              <li><a href="#mobile-app-section" class="hover:text-cyan-400 transition-colors">DiplomaMate Android App</a></li>
-            </ul>
-          </div>
-
-          <!-- Official Portals -->
-          <div>
-            <h4 class="font-bold text-slate-200 text-sm mb-3">Official Resources</h4>
-            <ul class="space-y-2">
-              <li><a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-cyan-400"></i> BTEB Official Portal</a></li>
-              <li><a href="http://www.dte.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-cyan-400"></i> Directorate of Technical Education</a></li>
-              <li><a href="http://btebadmission.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-cyan-400"></i> Polytechnic Online Admission</a></li>
-              <li><a href="https://www.duet.ac.bd" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-cyan-400"></i> DUET (Higher Engineering Admission)</a></li>
-            </ul>
-          </div>
-
-          <!-- Emergency Helplines -->
-          <div>
-            <h4 class="font-bold text-slate-200 text-sm mb-3">Student Support</h4>
-            <p class="mb-2">Need help navigating your diploma syllabus or admission query?</p>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-              <div class="flex items-center gap-2 text-cyan-400 font-mono">
-                <i data-lucide="mail" class="w-3.5 h-3.5"></i> support@diplomamate.bd
-              </div>
-              <div class="flex items-center gap-2 text-emerald-400 font-mono">
-                <i data-lucide="phone" class="w-3.5 h-3.5"></i> +880 2-8870190
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-          <div>
-            &copy; 2026 DiplomaMate. Dedicated to the Polytechnic Engineers of Bangladesh.
-          </div>
-          <div class="flex items-center gap-4">
-            <button class="footer-policy-link hover:text-cyan-400 transition-colors" data-type="privacy">Privacy Policy</button>
-            <button class="footer-policy-link hover:text-cyan-400 transition-colors" data-type="terms">Terms of Service</button>
-            <button class="footer-policy-link hover:text-cyan-400 transition-colors" data-type="disclaimer">BTEB Disclaimer</button>
-          </div>
-        </div>
-      </div>
-    </footer>
-
+    </div>
   </div>
 
   <!-- ==========================================
-       6. College A-to-Z Info Drawer (Sliding 3D Drawer)
+       2. Sticky Navigation Bar
        ========================================== -->
-  <div id="drawer-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
 
-  <div id="college-drawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[540px] z-50 glass-panel-glow border-l border-cyan-500/40 is-hidden flex flex-col bg-slate-950/95 overflow-hidden">
-    
-    <!-- Top Campus Banner Image -->
-    <div class="relative h-36 w-full overflow-hidden bg-slate-900 border-b border-slate-800 shrink-0">
-      <img id="drawer-college-img" src="" alt="College Campus" class="w-full h-full object-cover opacity-60 transition-opacity duration-300">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
-      
-      <!-- Close Button -->
-      <button id="drawer-close-btn" class="absolute top-4 right-4 z-10 w-8 h-8 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-400 transition-colors shadow-lg">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
+        <!-- Brand Logo -->
+        <a href="#" class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl font-extrabold tracking-tight text-slate-900">DiplomaMate</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Portal</span>
+            </div>
+            <span class="text-xs text-slate-500 font-medium block">BTEB Polytechnic Information System</span>
+          </div>
+        </a>
 
-      <!-- Division & Estd Badges over banner -->
-      <div class="absolute bottom-3 left-6 right-6 flex items-center justify-between">
-        <span id="drawer-division-badge" class="px-2.5 py-0.5 rounded-full text-[11px] bg-purple-950/90 text-purple-300 border border-purple-700/80 backdrop-blur-md font-semibold">Dhaka Division</span>
-        <span id="drawer-estd-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-950/90 text-emerald-300 border border-emerald-700/80 backdrop-blur-md">Estd: 1955</span>
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="#interactive-map" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i> Map Directory
+          </a>
+          <a href="#notice-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i> Notice Board
+          </a>
+          <a href="#departments-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i> 15 Technologies
+          </a>
+          <a href="#cgpa-calculator-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i> CGPA Calculator
+          </a>
+          <a href="#mobile-app-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> Android App
+          </a>
+        </nav>
+
+        <!-- Right Action Button -->
+        <div class="flex items-center gap-3">
+          <a href="#interactive-map" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-sm hover:bg-blue-700 transition-colors">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i> Find Polytechnic
+          </a>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Drawer Header Details -->
-    <div class="p-6 border-b border-slate-800 bg-slate-950 shrink-0">
-      <div class="flex items-center gap-2 flex-wrap mb-2">
-        <span id="drawer-code-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-cyan-950 text-cyan-400 border border-cyan-700">Code: 50117</span>
-        <span id="drawer-eiin-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-slate-800 text-slate-300 border border-slate-700">EIIN: 132958</span>
+    <!-- Mobile Dropdown Navigation -->
+    <div id="mobile-nav-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1 shadow-md">
+      <a href="#interactive-map" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">Map Directory of Polytechnics</a>
+      <a href="#notice-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">Notice Board & Job Circulars</a>
+      <a href="#departments-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">15 BTEB Technologies</a>
+      <a href="#cgpa-calculator-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">CGPA Calculator</a>
+      <a href="#mobile-app-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">DiplomaMate App</a>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       3. Clean Hero Section & Bangladesh Overview
+       ========================================== -->
+  <section class="py-12 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold mb-4 border border-blue-200">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>Official Curricula of Bangladesh Technical Education Board</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          Comprehensive Portal for <br>
+          <span class="text-blue-600">Bangladesh Polytechnic Institutes</span>
+        </h1>
+
+        <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          Explore all Government Polytechnic Institutes across 8 divisions on an interactive map, browse 2016 & 2022 regulation booklists, calculate your official diploma CGPA, and track engineering career opportunities.
+        </p>
+
+        <!-- 4 Key Institutional Stat Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">50+</div>
+            <div class="text-xs text-slate-500 font-medium mt-0.5">Govt Polytechnics</div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 text-center">
+            <div class="text-2xl font-bold font-mono text-blue-600">15</div>
+            <div class="text-xs text-slate-500 font-medium mt-0.5">BTEB Technologies</div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 text-center">
+            <div class="text-2xl font-bold font-mono text-emerald-600">120K+</div>
+            <div class="text-xs text-slate-500 font-medium mt-0.5">Diploma Students</div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 text-center">
+            <div class="text-2xl font-bold font-mono text-slate-900">8</div>
+            <div class="text-xs text-slate-500 font-medium mt-0.5">National Divisions</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       4. Interactive Bangladesh Map Section (Leaflet + OpenStreetMap)
+       ========================================== -->
+  <section id="interactive-map" class="py-12 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Map Header & Filter Controls -->
+      <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">Geographic Directory</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+              Government Polytechnic Institutes of Bangladesh
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Click any pin on the map to view historical background, department seat capacity, principal information, and campus facilities.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span id="map-institute-count-badge" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+              50 Government Polytechnics
+            </span>
+            <button id="reset-map-view-btn" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-sm" title="Reset View to Bangladesh">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span>Reset Map</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar: Divisions & Live Search Input -->
+        <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
+          
+          <!-- Division Filter Buttons -->
+          <div class="w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0">
+            <div class="flex items-center gap-1.5 min-w-max">
+              <span class="text-xs font-bold text-slate-500 mr-1 flex items-center gap-1">
+                <i data-lucide="filter" class="w-3.5 h-3.5 text-blue-600"></i> Divisions:
+              </span>
+              <button class="division-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition-colors" data-division="All">All (8)</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Dhaka">Dhaka</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Chattogram">Chattogram</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Rajshahi">Rajshahi</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Khulna">Khulna</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Barishal">Barishal</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Sylhet">Sylhet</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Rangpur">Rangpur</button>
+              <button class="division-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 transition-colors" data-division="Mymensingh">Mymensingh</button>
+            </div>
+          </div>
+
+          <!-- Instant Search Box -->
+          <div class="relative w-full lg:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input 
+              type="text" 
+              id="map-search-input" 
+              placeholder="Search institute name, code, or district..." 
+              class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
+            >
+            <!-- Autocomplete Suggestion Dropdown -->
+            <div id="map-search-dropdown" class="hidden absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto z-50"></div>
+          </div>
+        </div>
       </div>
 
-      <h2 id="drawer-college-name" class="text-xl sm:text-2xl font-extrabold text-slate-100 tracking-tight leading-snug">
+      <!-- Map Wrapper (Strict Bangladesh View Bounds) -->
+      <div class="map-wrapper-clean relative">
+        <!-- Leaflet Map Container -->
+        <div id="bangladesh-map" class="w-full h-[540px] sm:h-[600px]"></div>
+
+        <!-- Clean Bottom Status Indicator -->
+        <div class="absolute bottom-3 left-4 right-4 z-10 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 text-xs text-slate-600 shadow-sm">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5 font-medium text-slate-800">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+              <span>Government Polytechnic Marker</span>
+            </span>
+            <span class="hidden sm:inline text-slate-300">&bull;</span>
+            <span class="hidden sm:inline">Strict Bangladesh Boundary Locked</span>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] text-slate-500">
+            <i data-lucide="map" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>Powered by <strong>OpenStreetMap</strong> (100% Free & Open-Source)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       5. Official Notice Board & Engineering Job Circulars (Directly Below Map)
+       ========================================== -->
+  <section id="notice-section" class="py-12 bg-white border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Notice Board Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">BTEB & Government Circulars</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            Notice Board & Career Circulars
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+            Real-time published examination routines, BTEB board directives, and Sub-Assistant Engineer government job circulars.
+          </p>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs overflow-x-auto">
+          <button class="notice-tab-btn active px-3.5 py-1.5 rounded-lg font-bold text-blue-600 bg-white shadow-sm shrink-0" data-category="all">All Notices</button>
+          <button class="notice-tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 shrink-0" data-category="exam">Exam Schedule</button>
+          <button class="notice-tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 shrink-0" data-category="job">Govt Engineering Jobs</button>
+          <button class="notice-tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 shrink-0" data-category="board">Board Directives</button>
+        </div>
+      </div>
+
+      <!-- Notice Cards Grid (4 Clean Responsive Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <!-- Notice 1: Exam Routine -->
+        <div class="notice-item-card edu-card p-5 flex flex-col justify-between hover:border-blue-400 transition-colors" data-category="exam">
+          <div>
+            <div class="flex items-center justify-between text-[11px] mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-800">Exam Schedule</span>
+              <span class="text-slate-400 font-mono">2026-11-05</span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">Diploma in Engineering 2nd, 4th, 6th & 8th Semester Final Exam Routine</h4>
+            <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">Official BTEB published timetable for all technology theory and practical final examinations.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <button class="view-notice-btn text-xs text-blue-600 hover:underline flex items-center gap-1 font-semibold" data-title="Diploma Semester Final Exam Schedule 2026" data-date="2026-11-05" data-org="Bangladesh Technical Education Board (BTEB)" data-desc="The final examination routine for 2nd, 4th, 6th and 8th semester students of 2016 and 2022 Regulations has been released. Theoretical examinations commence from December 1st, followed by practical assessments.">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read Notice &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Notice 2: PGCB Job -->
+        <div class="notice-item-card edu-card p-5 flex flex-col justify-between hover:border-emerald-400 transition-colors" data-category="job">
+          <div>
+            <div class="flex items-center justify-between text-[11px] mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">PGCB Recruitment</span>
+              <span class="text-slate-400 font-mono">2026-11-02</span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">Power Grid (PGCB) 140 Sub-Assistant Engineer (Electrical/Civil/Mechanical)</h4>
+            <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">Recruitment circular for 10th grade Government Engineering posts. Age limit: 30 years.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <button class="view-notice-btn text-xs text-emerald-700 hover:underline flex items-center gap-1 font-semibold" data-title="PGCB 140 Sub-Assistant Engineer Recruitment Circular" data-date="2026-11-02" data-org="Power Grid Company of Bangladesh (PGCB)" data-desc="PGCB invites applications from dynamic Diploma in Electrical, Civil, and Mechanical Engineering graduates with at least CGPA 3.00 out of 4.00. Salary Grade: 10 with government power allowances.">
+              <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Circular Details &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Notice 3: PWD Job -->
+        <div class="notice-item-card edu-card p-5 flex flex-col justify-between hover:border-purple-400 transition-colors" data-category="job">
+          <div>
+            <div class="flex items-center justify-between text-[11px] mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-purple-100 text-purple-800">PWD / BPSC Circular</span>
+              <span class="text-slate-400 font-mono">2026-10-28</span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">Public Works Department (PWD) 85 Sub-Assistant Engineer (Civil/Electrical)</h4>
+            <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">Direct recruitment through BPSC for Diploma Engineering graduates.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <button class="view-notice-btn text-xs text-purple-700 hover:underline flex items-center gap-1 font-semibold" data-title="PWD 85 Sub-Assistant Engineer Circular via BPSC" data-date="2026-10-28" data-org="Bangladesh Public Service Commission (BPSC)" data-desc="The Ministry of Housing and Public Works announces 85 permanent vacancies for Sub-Assistant Engineers. Eligible disciplines: Civil and Electrical Technology. Applications accepted via the BPSC Teletalk portal.">
+              <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Circular Details &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Notice 4: Industrial Attachment -->
+        <div class="notice-item-card edu-card p-5 flex flex-col justify-between hover:border-amber-400 transition-colors" data-category="board">
+          <div>
+            <div class="flex items-center justify-between text-[11px] mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-800">Industrial Training</span>
+              <span class="text-slate-400 font-mono">2026-10-20</span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">8th Semester Industrial Training Guidelines & Policy</h4>
+            <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">Guidelines for mandatory 3-month industrial enterprise placement and stipend disbursement.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <button class="view-notice-btn text-xs text-amber-700 hover:underline flex items-center gap-1 font-semibold" data-title="8th Semester Industrial Training Guidelines & Policy" data-date="2026-10-20" data-org="BTEB Curriculum & Industry Cell" data-desc="All 8th semester final year students must complete a mandatory 3-month industrial attachment at accredited industrial corporations. Monthly government stipend of BDT 1,500 will be disbursed through mobile banking.">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read Manual &rarr;
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Feed Status Note -->
+      <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span>Official notices are cross-referenced with Bangladesh Gazette and ministerial gazettes.</span>
+        </div>
+        <div>
+          Official Portal: <a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">bteb.gov.bd</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       6. 15 BTEB Technologies & Booklist Explorer
+       ========================================== -->
+  <section id="departments-section" class="py-12 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Title & Regulation Switch -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">Curriculum Repository</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            BTEB Engineering Technologies & Syllabi
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+            Select any technology below to explore complete 8-semester course codes, credit distribution, and theory/practical contact hours.
+          </p>
+        </div>
+
+        <!-- Regulation Switcher & Filter -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+            <button id="reg-2022-btn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white shadow-sm">
+              2022 Regulation
+            </button>
+            <button id="reg-2016-btn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+              2016 Regulation
+            </button>
+          </div>
+
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input 
+              type="text" 
+              id="dept-search-input" 
+              placeholder="Filter technologies..." 
+              class="pl-8 pr-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 w-44 shadow-sm"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- 15 Technologies Cards Grid -->
+      <div id="departments-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered cleanly by main.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       7. Student Smart Hub (CGPA Calculator & App)
+       ========================================== -->
+  <section id="cgpa-calculator-section" class="py-12 bg-white border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">Academic Evaluation</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+          Official BTEB Diploma CGPA Calculator
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          Calculate your 8-semester cumulative CGPA based on official BTEB weighted percentage formula: 1st–3rd (5% each), 4th (10%), 5th (15%), 6th (20%), 7th (25%), 8th Internship (15%).
+        </p>
+      </div>
+
+      <!-- CGPA Calculator Main Card -->
+      <div class="max-w-4xl mx-auto edu-card p-6 sm:p-8">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="calculator" class="w-5 h-5 text-blue-600"></i>
+              Semester Grade Point Average (GPA) Inputs
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Enter GPA between 0.00 and 4.00 for completed semesters</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="preset-cgpa-high-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors">
+              Sample Honors
+            </button>
+            <button id="clear-cgpa-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition-colors">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- 8 Semester Input Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">1st Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-blue-600">5%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">2nd Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-blue-600">5%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">3rd Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-blue-600">5%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">4th Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-blue-600">10%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">5th Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-emerald-600">15%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">6th Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-emerald-600">20%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">7th Semester</span>
+              <span class="text-[11px] font-mono font-semibold text-emerald-600">25%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-bold text-slate-700">8th Sem (Intern)</span>
+              <span class="text-[11px] font-mono font-semibold text-purple-600">15%</span>
+            </div>
+            <input type="number" step="0.01" min="0" max="4.00" placeholder="0.00" class="cgpa-sem-input w-full bg-white border border-slate-300 rounded-lg p-2 text-sm text-center font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-600">
+          </div>
+        </div>
+
+        <!-- Score Result Box -->
+        <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white flex flex-col items-center justify-center font-mono font-bold shadow-md">
+              <span id="cgpa-gauge-value" class="text-xl leading-none">0.00</span>
+              <span class="text-[9px] uppercase tracking-wider opacity-80 mt-1">out of 4</span>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 font-medium">Academic Standing:</div>
+              <div id="cgpa-letter-grade" class="font-bold text-slate-800 text-base">Awaiting Input</div>
+            </div>
+          </div>
+          <div class="flex-1 text-center sm:text-right">
+            <p id="cgpa-remark-text" class="text-xs text-slate-600 leading-relaxed max-w-sm ml-auto">
+              Enter your semester GPAs to compute your official BTEB CGPA with verified weightages.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+          <button id="calculate-cgpa-btn" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i> Calculate Score
+          </button>
+          <button id="export-cgpa-btn" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="printer" class="w-4 h-4 text-blue-600"></i> Print Transcript Card
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile App CTA Banner -->
+      <div id="mobile-app-section" class="max-w-4xl mx-auto edu-card p-8 sm:p-10 border border-slate-200 bg-white mt-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div class="max-w-xl">
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">Student Mobile Toolkit</span>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+              DiplomaMate Android Application
+            </h3>
+            <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+              Carry the entire BTEB 2016 & 2022 syllabus in your pocket. Access previous years' solved board question papers, monitor class routines offline, and receive instant exam schedule alerts.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 mt-6">
+              <button id="download-apk-btn" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i> Download APK (v2.4 - Free)
+              </button>
+              <button id="view-qr-btn" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
+                <i data-lucide="qr-code" class="w-4 h-4 text-blue-600"></i> Scan QR Code
+              </button>
+              <span class="text-xs text-slate-400">Android 7.0+ &bull; 18.4 MB</span>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-blue-50 border border-blue-100 text-center shrink-0">
+            <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3 shadow-sm">
+              <i data-lucide="smartphone" class="w-8 h-8"></i>
+            </div>
+            <div class="font-bold text-sm text-slate-900">DiplomaMate v2.4</div>
+            <div class="text-xs text-blue-700 font-medium mt-0.5">Offline Syllabus & Questions</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       8. Professional Academic Footer & Verified Contact
+       ========================================== -->
+  <footer class="bg-white border-t border-slate-200 py-12 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+
+        <!-- Column 1: Institutional Brand -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+              <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+            </div>
+            <span class="text-base font-bold text-slate-900">DiplomaMate</span>
+          </div>
+          <p class="leading-relaxed text-slate-600">
+            Open-access educational resource and directory supporting diploma engineering students and faculties across Bangladesh.
+          </p>
+          <div class="text-[11px] font-mono text-blue-700 font-medium">
+            Curriculum Aligned with BTEB 2016 & 2022
+          </div>
+        </div>
+
+        <!-- Column 2: Navigation Links -->
+        <div>
+          <h4 class="font-bold text-slate-900 text-sm mb-3">Portal Sections</h4>
+          <ul class="space-y-2">
+            <li><a href="#interactive-map" class="hover:text-blue-600 transition-colors">Bangladesh Polytechnic Map</a></li>
+            <li><a href="#notice-section" class="hover:text-blue-600 transition-colors">Notice Board & Circulars</a></li>
+            <li><a href="#departments-section" class="hover:text-blue-600 transition-colors">15 BTEB Technology Syllabi</a></li>
+            <li><a href="#cgpa-calculator-section" class="hover:text-blue-600 transition-colors">BTEB Official CGPA Calculator</a></li>
+            <li><a href="#mobile-app-section" class="hover:text-blue-600 transition-colors">DiplomaMate Android App</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Government Educational Portals -->
+        <div>
+          <h4 class="font-bold text-slate-900 text-sm mb-3">Official Authorities</h4>
+          <ul class="space-y-2">
+            <li><a href="http://www.bteb.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i> BTEB Official Portal</a></li>
+            <li><a href="http://www.dte.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i> Directorate of Technical Education</a></li>
+            <li><a href="http://btebadmission.gov.bd" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i> Polytechnic Online Admission</a></li>
+            <li><a href="https://www.duet.ac.bd" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors flex items-center gap-1.5"><i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i> DUET Admission</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Verified Contact Information -->
+        <div>
+          <h4 class="font-bold text-slate-900 text-sm mb-3">Contact Information</h4>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-start gap-2.5">
+              <i data-lucide="user" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Contact Person</span>
+                <span class="font-bold text-slate-900 text-sm">TANJIM KHAN</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <i data-lucide="phone" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Phone Number</span>
+                <a href="tel:01846699054" class="font-mono font-bold text-blue-700 hover:underline text-sm">01846699054</a>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 pt-2 border-t border-slate-200">
+              <i data-lucide="map-pin" class="w-4 h-4 text-slate-500 shrink-0 mt-0.5"></i>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Location / Address</span>
+                <span class="font-semibold text-slate-800 leading-tight block">MADARIPUR, DHAKA, BANGLADESH</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+        <div>
+          &copy; 2026 DiplomaMate &bull; Managed by <strong class="text-slate-800 font-semibold">TANJIM KHAN</strong> &bull; MADARIPUR, DHAKA, BANGLADESH.
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="footer-policy-link hover:text-blue-600 transition-colors" data-type="privacy">Privacy Policy</button>
+          <button class="footer-policy-link hover:text-blue-600 transition-colors" data-type="terms">Terms of Service</button>
+          <button class="footer-policy-link hover:text-blue-600 transition-colors" data-type="disclaimer">BTEB Disclaimer</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       9. College A-to-Z Info Drawer
+       ========================================== -->
+  <div id="drawer-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+
+  <div id="college-drawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[500px] z-50 bg-white border-l border-slate-200 shadow-2xl is-hidden flex flex-col overflow-hidden">
+    
+    <!-- Drawer Header -->
+    <div class="p-6 border-b border-slate-200 bg-slate-50 shrink-0 relative">
+      <button id="drawer-close-btn" class="absolute top-5 right-5 w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="flex items-center gap-2 flex-wrap mb-2">
+        <span id="drawer-code-badge" class="px-2.5 py-0.5 rounded font-mono font-bold text-xs bg-blue-100 text-blue-800">Code: 50117</span>
+        <span id="drawer-eiin-badge" class="px-2.5 py-0.5 rounded font-mono text-xs bg-slate-200 text-slate-800">EIIN: 132958</span>
+        <span id="drawer-estd-badge" class="px-2.5 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-medium">Estd: 1955</span>
+        <span id="drawer-division-badge" class="px-2.5 py-0.5 rounded text-xs bg-slate-200 text-slate-800">Dhaka Division</span>
+      </div>
+
+      <h2 id="drawer-college-name" class="text-xl font-bold text-slate-900 tracking-tight leading-snug">
         Dhaka Polytechnic Institute
       </h2>
-      <p id="drawer-college-bn-name" class="text-sm text-cyan-300 font-bengali mt-0.5 font-medium">
+      <p id="drawer-college-bn-name" class="text-sm text-blue-700 font-bengali mt-0.5 font-medium">
         ঢাকা পলিটেকনিক ইনস্টিটিউট
       </p>
 
-      <!-- Quick Action Buttons -->
-      <div class="flex items-center gap-2.5 mt-4">
-        <a id="drawer-website-btn" href="#" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-semibold hover:bg-cyan-500 hover:text-slate-950 transition-colors flex items-center gap-1.5">
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 mt-4">
+        <a id="drawer-website-btn" href="#" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-sm">
           <i data-lucide="globe" class="w-3.5 h-3.5"></i> Official Website
         </a>
-        <a id="drawer-call-btn" href="#" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-semibold hover:text-cyan-400 hover:border-cyan-500/40 transition-colors flex items-center gap-1.5">
+        <a id="drawer-call-btn" href="#" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-medium hover:bg-slate-100 transition-colors flex items-center gap-1.5">
           <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call Campus
         </a>
       </div>
 
       <!-- Drawer Tabs -->
-      <div class="flex items-center gap-2 mt-5 border-t border-slate-800/80 pt-3 overflow-x-auto text-xs">
-        <button class="drawer-tab-btn active px-3 py-1.5 rounded-lg font-semibold text-cyan-300 bg-cyan-500/10 border-b-2 border-cyan-400 shrink-0" data-tab="overview">
-          History & Overview
-        </button>
-        <button class="drawer-tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-tab="departments">
-          Departments & Seats
-        </button>
-        <button class="drawer-tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-tab="facilities">
-          Campus Facilities
-        </button>
-        <button class="drawer-tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-slate-200 shrink-0" data-tab="contact">
-          Contacts & Portal
-        </button>
+      <div class="flex items-center gap-4 mt-5 border-t border-slate-200 pt-3 text-xs overflow-x-auto">
+        <button class="drawer-tab-btn active font-bold text-blue-600 border-b-2 border-blue-600 pb-1 shrink-0" data-tab="overview">Overview & History</button>
+        <button class="drawer-tab-btn font-medium text-slate-500 hover:text-slate-900 pb-1 shrink-0" data-tab="departments">Departments & Seats</button>
+        <button class="drawer-tab-btn font-medium text-slate-500 hover:text-slate-900 pb-1 shrink-0" data-tab="facilities">Facilities</button>
+        <button class="drawer-tab-btn font-medium text-slate-500 hover:text-slate-900 pb-1 shrink-0" data-tab="contact">Contact</button>
       </div>
     </div>
 
-    <!-- Drawer Body (Tab Contents) -->
+    <!-- Drawer Body -->
     <div class="flex-1 overflow-y-auto p-6 space-y-6">
 
-      <!-- Tab 1: Overview & History -->
+      <!-- Tab 1: Overview -->
       <div id="drawer-tab-content-overview" class="drawer-tab-content space-y-4">
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2 flex items-center gap-1.5">
-            <i data-lucide="book-marked" class="w-4 h-4"></i> ইতিহাস ও পটভূমি (Institute History)
-          </h4>
-          <p id="drawer-history-bn" class="text-sm font-bengali text-slate-200 leading-relaxed">
-            ১৯৫৫ সালে প্রতিষ্ঠিত ঢাকা পলিটেকনিক ইনস্টিটিউট বাংলাদেশের প্রাচীনতম ও বৃহত্তম সরকারি পলিটেকনিক ইনস্টিটিউট।
-          </p>
-          <p id="drawer-history-en" class="text-xs text-slate-400 leading-relaxed mt-3 pt-3 border-t border-slate-800">
-            Established in 1955, Dhaka Polytechnic Institute is the oldest and largest government polytechnic institute in Bangladesh.
-          </p>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">ইতিহাস ও পটভূমি (Institute History)</h4>
+          <p id="drawer-history-bn" class="text-sm font-bengali text-slate-800 leading-relaxed"></p>
+          <p id="drawer-history-en" class="text-xs text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-200"></p>
         </div>
 
         <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-            <span class="text-slate-400 block text-[11px]">Total Seat Capacity:</span>
-            <span id="drawer-total-seats" class="font-mono text-base font-bold text-emerald-400 mt-1 block">1600+ Seats</span>
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="text-slate-500 block text-[11px]">Total Seat Capacity:</span>
+            <span id="drawer-total-seats" class="font-mono text-base font-bold text-slate-900 mt-0.5 block"></span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-            <span class="text-slate-400 block text-[11px]">Shifts Operating:</span>
-            <span id="drawer-shifts-badge" class="font-mono text-base font-bold text-cyan-400 mt-1 block">1st & 2nd Shift</span>
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="text-slate-500 block text-[11px]">Shifts Operating:</span>
+            <span id="drawer-shifts-badge" class="font-mono text-base font-bold text-slate-900 mt-0.5 block"></span>
           </div>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-800/40 text-xs">
-          <h5 class="font-bold text-cyan-300 mb-1 flex items-center gap-1.5">
-            <i data-lucide="award" class="w-4 h-4 text-cyan-400"></i> BTEB Accreditation
-          </h5>
-          <p class="text-slate-300 leading-relaxed">
-            All programs are 4-year, 8-semester Diploma in Engineering accredited by the Bangladesh Technical Education Board (BTEB) and recognized by BPSC & IEB.
-          </p>
         </div>
       </div>
 
-      <!-- Tab 2: Departments & Seat Breakdown -->
+      <!-- Tab 2: Departments -->
       <div id="drawer-tab-content-departments" class="drawer-tab-content hidden space-y-3">
-        <div class="flex items-center justify-between text-xs text-slate-400 px-1">
-          <span>Available Technologies</span>
-          <span>Shift Breakdown</span>
-        </div>
-        <div id="drawer-departments-list" class="space-y-2.5">
-          <!-- Dynamic rendering via main.js -->
-        </div>
+        <div id="drawer-departments-list" class="space-y-2.5"></div>
       </div>
 
-      <!-- Tab 3: Campus Facilities -->
+      <!-- Tab 3: Facilities -->
       <div id="drawer-tab-content-facilities" class="drawer-tab-content hidden space-y-4">
-        <div>
-          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3 flex items-center gap-1.5">
-            <i data-lucide="check-square" class="w-4 h-4"></i> Campus Infrastructure & Amenities
-          </h4>
-          <ul id="drawer-facilities-list" class="space-y-2">
-            <!-- Dynamic facilities list -->
-          </ul>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs">
-          <div class="font-bold text-slate-200 mb-1 flex items-center gap-1.5">
-            <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i> Principal & Academic Head
-          </div>
-          <div id="drawer-principal-info" class="text-slate-300 font-medium">Principal Office, BTEB Regulated</div>
+        <ul id="drawer-facilities-list" class="space-y-2"></ul>
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+          <div class="font-bold text-slate-800 mb-0.5">Principal Office:</div>
+          <div id="drawer-principal-info" class="text-slate-600 font-medium"></div>
         </div>
       </div>
 
-      <!-- Tab 4: Contact & Portal Login -->
+      <!-- Tab 4: Contact -->
       <div id="drawer-tab-content-contact" class="drawer-tab-content hidden space-y-4">
-        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3.5 text-xs">
           <div>
-            <span class="text-slate-400 block mb-0.5">Campus Address:</span>
-            <span id="drawer-address" class="text-slate-200 font-medium">Tejgaon Industrial Area, Dhaka-1208</span>
+            <span class="text-slate-500 block mb-0.5">Head of Institution / Principal:</span>
+            <span id="drawer-contact-principal" class="text-slate-900 font-bold block text-sm"></span>
           </div>
           <div>
-            <span class="text-slate-400 block mb-0.5">Telephone / Hotline:</span>
-            <span id="drawer-phone" class="font-mono text-cyan-400 font-bold">+880 2-8870190</span>
+            <span class="text-slate-500 block mb-0.5">Campus Address:</span>
+            <span id="drawer-address" class="text-slate-800 font-medium"></span>
           </div>
           <div>
-            <span class="text-slate-400 block mb-0.5">Official Inquiries:</span>
-            <span id="drawer-email" class="font-mono text-slate-200">principal@dpi.gov.bd</span>
+            <span class="text-slate-500 block mb-0.5">Telephone / Hotline:</span>
+            <a id="drawer-phone-link" href="#" class="font-mono text-blue-700 font-bold hover:underline block">
+              <span id="drawer-phone"></span>
+            </a>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Official Inquiries & Email:</span>
+            <a id="drawer-email-link" href="#" class="font-mono text-blue-700 font-medium hover:underline block">
+              <span id="drawer-email"></span>
+            </a>
+          </div>
+          <div>
+            <span class="text-slate-500 block mb-0.5">Official Web Portal:</span>
+            <a id="drawer-website-url-link" href="#" target="_blank" rel="noopener noreferrer" class="font-mono text-blue-700 font-medium hover:underline flex items-center gap-1"></a>
           </div>
         </div>
 
-        <div class="p-5 rounded-2xl bg-gradient-to-br from-cyan-950/60 to-slate-900 border border-cyan-500/40 text-center">
-          <i data-lucide="shield-check" class="w-8 h-8 mx-auto text-cyan-400 mb-2"></i>
-          <h4 class="font-bold text-slate-100 text-sm">College Student Management Portal</h4>
-          <p class="text-xs text-slate-400 mt-1 mb-4">Access internal college notices, semester attendance, marksheet, and fee payments.</p>
-          <button id="login-college-portal-btn" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 hover:scale-[1.01] transition-transform flex items-center justify-center gap-2">
-            <i data-lucide="log-in" class="w-4 h-4"></i> Login to College Portal
-          </button>
-        </div>
+        <button id="login-college-portal-btn" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Login to College Student Portal
+        </button>
       </div>
 
     </div>
 
     <!-- Drawer Footer -->
-    <div class="p-4 border-t border-slate-800 bg-slate-950 text-center text-xs text-slate-500 shrink-0">
-      BTEB Polytechnic Information System &bull; Verified Database
+    <div class="p-3.5 border-t border-slate-200 bg-slate-50 text-center text-xs text-slate-500 shrink-0">
+      BTEB Verified Polytechnic Directory
     </div>
   </div>
 
   <!-- ==========================================
-       7. Semester Selector & Booklist Modal
+       10. Semester Booklist Modal
        ========================================== -->
-  <div id="syllabus-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
+  <div id="syllabus-modal-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
 
-  <div id="syllabus-modal" class="fixed inset-4 sm:inset-10 lg:inset-x-32 lg:inset-y-12 z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden flex flex-col bg-slate-950/95 overflow-hidden shadow-2xl">
+  <div id="syllabus-modal" class="fixed inset-4 sm:inset-10 lg:inset-x-32 lg:inset-y-12 z-50 bg-white rounded-2xl border border-slate-200 hidden flex flex-col overflow-hidden shadow-2xl">
     
     <!-- Modal Header -->
-    <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+    <div class="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
           <i data-lucide="book-open" class="w-5 h-5"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h3 id="syllabus-modal-dept-title" class="text-xl font-bold text-slate-100">Computer Science & Technology</h3>
-            <span id="syllabus-modal-reg-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-cyan-950 text-cyan-400 border border-cyan-700">2022 Regulation</span>
+            <h3 id="syllabus-modal-dept-title" class="text-lg font-bold text-slate-900">Technology Title</h3>
+            <span id="syllabus-modal-reg-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">2022 Regulation</span>
           </div>
-          <p id="syllabus-modal-dept-bn" class="text-xs text-slate-400 font-bengali">কম্পিউটার সায়েন্স অ্যান্ড টেকনোলজি</p>
+          <p id="syllabus-modal-dept-bn" class="text-xs text-slate-500 font-bengali"></p>
         </div>
       </div>
 
-      <button id="syllabus-modal-close-btn" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-400 transition-colors">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-    </div>
-
-    <!-- Semester Selector Bar -->
-    <div class="px-6 py-4 bg-slate-900/60 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
-      <div id="syllabus-semester-selector" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-        <!-- Rendered by main.js (1st to 8th Semester pills) -->
-      </div>
-
-      <div class="flex items-center gap-2 text-xs">
-        <span class="text-slate-400">Total Credits this Sem:</span>
-        <span id="syllabus-total-semester-credits" class="font-mono font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800">21</span>
-      </div>
-    </div>
-
-    <!-- Subject Table Container -->
-    <div class="flex-1 overflow-y-auto p-6">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-700 text-xs uppercase tracking-wider text-slate-400 bg-slate-900/40">
-              <th class="py-3 px-4">Subject Code</th>
-              <th class="py-3 px-4">Subject Title</th>
-              <th class="py-3 px-4 text-center">Theory (T)</th>
-              <th class="py-3 px-4 text-center">Practical (P)</th>
-              <th class="py-3 px-4 text-center">Credits (C)</th>
-              <th class="py-3 px-4 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody id="syllabus-subjects-table-body">
-            <!-- Populated via main.js -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Modal Footer -->
-    <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-      <div class="flex items-center gap-3">
-        <span>T = Theory Contact Hours/week</span> &bull; 
-        <span>P = Practical Contact Hours/week</span> &bull; 
-        <span>C = Total Credits</span>
-      </div>
-      <div class="text-cyan-400 font-mono">
-        Authorized by Bangladesh Technical Education Board
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       8. Global Quick Search Modal (Ctrl + K)
-       ========================================== -->
-  <div id="global-search-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
-
-  <div id="global-search-modal" class="fixed top-20 inset-x-4 sm:inset-x-auto sm:w-[600px] sm:left-1/2 sm:-translate-x-1/2 z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden flex flex-col bg-slate-950/95 shadow-2xl overflow-hidden">
-    <!-- Search Bar -->
-    <div class="p-4 border-b border-slate-800 flex items-center gap-3">
-      <i data-lucide="search" class="w-5 h-5 text-cyan-400 shrink-0"></i>
-      <input 
-        type="text" 
-        id="global-search-input" 
-        placeholder="Search polytechnics, BTEB codes, or technologies..." 
-        class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
-      >
-      <kbd class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-400 border border-slate-700 shrink-0">ESC</kbd>
-    </div>
-
-    <!-- Results Container -->
-    <div id="global-search-results" class="max-h-80 overflow-y-auto p-3 space-y-1">
-      <!-- Populated via main.js -->
-    </div>
-
-    <div class="p-3 border-t border-slate-800/80 bg-slate-900/50 text-right text-[11px] text-slate-500">
-      Use &uarr; &darr; to navigate &bull; Press Enter to select
-    </div>
-  </div>
-
-  <!-- ==========================================
-       9. College Portal Login Simulation Modal
-       ========================================== -->
-  <div id="portal-login-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
-
-  <div id="portal-login-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden p-6 bg-slate-950 shadow-2xl">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <i data-lucide="lock" class="w-5 h-5 text-cyan-400"></i>
-        <h3 class="text-base font-bold text-slate-100">Student Portal Authentication</h3>
-      </div>
-      <button id="portal-login-close-btn" class="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center">
+      <button id="syllabus-modal-close-btn" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <p id="portal-modal-college-name" class="text-xs text-cyan-300 mb-4 font-semibold">Dhaka Polytechnic Institute</p>
+    <!-- Semester Selector Bar -->
+    <div class="px-6 py-3.5 bg-slate-50/70 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+      <div id="syllabus-semester-selector" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"></div>
+      <div class="text-xs font-medium text-slate-600">
+        Total Credits: <span id="syllabus-total-semester-credits" class="font-mono font-bold text-slate-900"></span>
+      </div>
+    </div>
+
+    <!-- Table Body -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 bg-slate-50">
+              <th class="py-2.5 px-4">Subject Code</th>
+              <th class="py-2.5 px-4">Subject Title</th>
+              <th class="py-2.5 px-4 text-center">Theory (T)</th>
+              <th class="py-2.5 px-4 text-center">Practical (P)</th>
+              <th class="py-2.5 px-4 text-center">Credits (C)</th>
+              <th class="py-2.5 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="syllabus-subjects-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+      <div>T = Theory Contact Hours &bull; P = Practical Hours &bull; C = Total Credits</div>
+      <div class="font-mono text-blue-700">Bangladesh Technical Education Board</div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       11. Student Portal Authentication Modal
+       ========================================== -->
+  <div id="portal-login-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+
+  <div id="portal-login-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="lock" class="w-5 h-5 text-blue-600"></i>
+        <h3 class="text-base font-bold text-slate-900">Student Portal Login</h3>
+      </div>
+      <button id="portal-login-close-btn" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-800 flex items-center justify-center">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <p id="portal-modal-college-name" class="text-xs text-blue-700 font-semibold mb-4">Dhaka Polytechnic Institute</p>
 
     <form class="space-y-3.5 text-xs">
       <div>
-        <label class="block text-slate-400 mb-1">Student Roll Number (6 Digits)</label>
-        <input id="portal-roll-input" type="text" placeholder="e.g. 512345" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-100 font-mono focus:border-cyan-400 focus:outline-none">
+        <label class="block text-slate-600 mb-1 font-medium">Student Roll Number (6 Digits)</label>
+        <input id="portal-roll-input" type="text" placeholder="e.g. 512345" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 font-mono focus:border-blue-600 focus:bg-white focus:outline-none">
       </div>
       <div>
-        <label class="block text-slate-400 mb-1">BTEB Registration Number</label>
-        <input id="portal-reg-input" type="text" placeholder="e.g. 1502123456" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-100 font-mono focus:border-cyan-400 focus:outline-none">
+        <label class="block text-slate-600 mb-1 font-medium">BTEB Registration Number</label>
+        <input id="portal-reg-input" type="text" placeholder="e.g. 1502123456" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 font-mono focus:border-blue-600 focus:bg-white focus:outline-none">
       </div>
       <div>
-        <label class="block text-slate-400 mb-1">Current Semester</label>
-        <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:border-cyan-400 focus:outline-none">
+        <label class="block text-slate-600 mb-1 font-medium">Current Semester</label>
+        <select class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:border-blue-600 focus:bg-white focus:outline-none">
           <option>1st Semester</option>
           <option>2nd Semester</option>
           <option>3rd Semester</option>
@@ -1083,179 +912,162 @@
         </select>
       </div>
 
-      <button id="portal-submit-btn" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-xs shadow-lg mt-4 flex items-center justify-center gap-2">
-        <i data-lucide="check" class="w-4 h-4"></i> Secure Login
+      <button id="portal-submit-btn" type="button" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-sm hover:bg-blue-700 transition-colors mt-4">
+        Authenticate & Access Portal
       </button>
     </form>
   </div>
 
   <!-- ==========================================
-       10. Mobile QR Code Modal
+       12. Scan Mobile QR Modal
        ========================================== -->
-  <div id="qr-code-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
+  <div id="qr-code-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
 
-  <div id="qr-code-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden p-6 bg-slate-950 shadow-2xl text-center">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <i data-lucide="smartphone" class="w-5 h-5 text-cyan-400"></i>
-        <h3 class="text-base font-bold text-slate-100">Scan to Install App</h3>
-      </div>
-      <button id="qr-code-close-btn" class="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center">
+  <div id="qr-code-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 shadow-2xl text-center">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+      <h3 class="text-sm font-bold text-slate-900">DiplomaMate Android APK</h3>
+      <button id="qr-code-close-btn" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-800 flex items-center justify-center">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <!-- High-res Vector SVG QR Code -->
-    <div class="w-48 h-48 mx-auto bg-white p-3 rounded-2xl shadow-xl flex items-center justify-center mb-4">
-      <svg class="w-full h-full text-slate-950" viewBox="0 0 100 100" fill="currentColor">
-        <!-- QR Code Matrix Simulation Pattern -->
-        <rect x="0" y="0" width="28" height="28" fill="#020617" />
+    <!-- Clean SVG QR Code -->
+    <div class="w-44 h-44 mx-auto bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-center justify-center mb-4">
+      <svg class="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
+        <rect x="0" y="0" width="28" height="28" />
         <rect x="4" y="4" width="20" height="20" fill="white" />
-        <rect x="8" y="8" width="12" height="12" fill="#020617" />
-        
-        <rect x="72" y="0" width="28" height="28" fill="#020617" />
+        <rect x="8" y="8" width="12" height="12" />
+        <rect x="72" y="0" width="28" height="28" />
         <rect x="76" y="4" width="20" height="20" fill="white" />
-        <rect x="80" y="8" width="12" height="12" fill="#020617" />
-        
-        <rect x="0" y="72" width="28" height="28" fill="#020617" />
+        <rect x="80" y="8" width="12" height="12" />
+        <rect x="0" y="72" width="28" height="28" />
         <rect x="4" y="76" width="20" height="20" fill="white" />
-        <rect x="8" y="80" width="12" height="12" fill="#020617" />
-
-        <rect x="36" y="8" width="8" height="8" fill="#020617" />
-        <rect x="52" y="16" width="10" height="8" fill="#020617" />
-        <rect x="36" y="36" width="28" height="28" rx="4" fill="#06b6d4" />
+        <rect x="8" y="80" width="12" height="12" />
+        <rect x="36" y="8" width="8" height="8" />
+        <rect x="52" y="16" width="10" height="8" />
+        <rect x="36" y="36" width="28" height="28" rx="3" fill="#1d4ed8" />
         <rect x="44" y="44" width="12" height="12" fill="white" />
-
-        <rect x="72" y="36" width="8" height="8" fill="#020617" />
-        <rect x="84" y="48" width="12" height="8" fill="#020617" />
-        <rect x="76" y="72" width="16" height="8" fill="#020617" />
-        <rect x="36" y="76" width="8" height="16" fill="#020617" />
-        <rect x="52" y="84" width="12" height="8" fill="#020617" />
+        <rect x="72" y="36" width="8" height="8" />
+        <rect x="84" y="48" width="12" height="8" />
+        <rect x="76" y="72" width="16" height="8" />
+        <rect x="36" y="76" width="8" height="16" />
+        <rect x="52" y="84" width="12" height="8" />
       </svg>
     </div>
 
-    <h4 class="text-sm font-bold text-slate-100">DiplomaMate Android APK (v2.4)</h4>
-    <p class="text-xs text-slate-400 mt-1 mb-4">Point your mobile camera at this QR code to download and install immediately.</p>
+    <p class="text-xs text-slate-600 mb-4">Scan using your phone camera to download the APK installer directly.</p>
 
-    <div class="flex items-center gap-2">
-      <button id="copy-apk-link-btn" class="flex-1 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:border-cyan-400 transition-colors flex items-center justify-center gap-1.5">
-        <i data-lucide="copy" class="w-3.5 h-3.5 text-cyan-400"></i> Copy Link
+    <div class="flex items-center gap-2 text-xs">
+      <button id="copy-apk-link-btn" class="flex-1 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-colors">
+        Copy Link
       </button>
-      <a href="https://diplomamate.bd/download/diplomamate-v2.4.apk" class="flex-1 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs shadow-lg hover:bg-cyan-400 transition-colors flex items-center justify-center gap-1.5">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i> Direct APK
+      <a href="https://diplomamate.bd/download/diplomamate-v2.4.apk" class="flex-1 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">
+        Direct Download
       </a>
     </div>
   </div>
 
   <!-- ==========================================
-       11. CGPA Transcript Export Modal
+       13. CGPA Transcript Printable Modal
        ========================================== -->
-  <div id="transcript-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
+  <div id="transcript-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
 
-  <div id="transcript-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden p-6 sm:p-8 bg-slate-950 shadow-2xl">
-    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+  <div id="transcript-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 sm:p-8 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
       <div>
-        <span class="text-[10px] uppercase font-bold tracking-wider text-cyan-400 font-mono">Official BTEB Format</span>
-        <h3 class="text-lg font-bold text-slate-100">Diploma Cumulative CGPA Transcript</h3>
+        <span class="text-[10px] uppercase font-bold text-blue-600 font-mono">BTEB Official Format</span>
+        <h3 class="text-base font-bold text-slate-900">Diploma CGPA Evaluation Sheet</h3>
       </div>
-      <button id="transcript-close-btn" class="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center">
+      <button id="transcript-close-btn" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-800 flex items-center justify-center">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <!-- Score Summary Badge -->
-    <div class="flex items-center justify-between p-4 rounded-2xl bg-cyan-950/40 border border-cyan-700/50 mb-4">
+    <div class="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100 mb-4">
       <div>
-        <span class="text-xs text-slate-300">Final Cumulative CGPA:</span>
-        <div id="transcript-cgpa-value" class="text-3xl font-extrabold font-mono text-cyan-400 mt-0.5">3.88</div>
+        <span class="text-xs text-slate-600">Cumulative CGPA:</span>
+        <div id="transcript-cgpa-value" class="text-2xl font-extrabold font-mono text-blue-800">3.88</div>
       </div>
       <div class="text-right">
-        <span class="text-xs text-slate-300">Division Standing:</span>
-        <div id="transcript-grade-value" class="text-sm font-bold text-emerald-400 mt-0.5">A (First Class)</div>
-        <span id="transcript-date" class="text-[10px] text-slate-500 font-mono block mt-1">November 8, 2026</span>
+        <span class="text-xs text-slate-600">Classification:</span>
+        <div id="transcript-grade-value" class="text-sm font-bold text-slate-900">A (First Class)</div>
+        <span id="transcript-date" class="text-[10px] text-slate-500 font-mono block mt-0.5"></span>
       </div>
     </div>
 
-    <!-- Semester Weightage Table -->
-    <div class="max-h-56 overflow-y-auto mb-4 border border-slate-800 rounded-xl p-2">
+    <div class="max-h-56 overflow-y-auto mb-4 border border-slate-200 rounded-xl p-2">
       <table class="w-full text-left">
         <thead>
-          <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase">
-            <th class="py-2">Semester</th>
-            <th class="py-2 text-center">GPA</th>
-            <th class="py-2 text-center">Weight</th>
-            <th class="py-2 text-center">Weighted Score</th>
+          <tr class="border-b border-slate-200 text-[11px] text-slate-500 uppercase">
+            <th class="py-1.5">Semester</th>
+            <th class="py-1.5 text-center">GPA</th>
+            <th class="py-1.5 text-center">Weight</th>
+            <th class="py-1.5 text-center">Weighted Score</th>
           </tr>
         </thead>
-        <tbody id="transcript-table-body">
-          <!-- Populated via main.js -->
-        </tbody>
+        <tbody id="transcript-table-body"></tbody>
       </table>
     </div>
 
-    <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
-      <span class="text-slate-400 text-[11px]">BTEB 2016 & 2022 Regulation Formula Verified</span>
-      <button id="print-transcript-btn" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold hover:bg-cyan-400 transition-colors flex items-center gap-1.5 shadow-lg">
+    <div class="flex items-center justify-between pt-3 border-t border-slate-200 text-xs">
+      <span class="text-slate-500 text-[11px]">8-Semester Formula Verified</span>
+      <button id="print-transcript-btn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-sm">
         <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
       </button>
     </div>
   </div>
 
   <!-- ==========================================
-       12. Notice Document Viewer Modal
+       14. Notice Document Viewer Modal
        ========================================== -->
-  <div id="notice-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
+  <div id="notice-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
 
-  <div id="notice-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden p-6 sm:p-8 bg-slate-950 shadow-2xl">
-    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+  <div id="notice-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 sm:p-8 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
       <div class="flex items-center gap-2">
-        <i data-lucide="file-text" class="w-5 h-5 text-amber-400"></i>
-        <span class="text-xs font-bold text-slate-300 font-mono" id="notice-modal-org">BTEB Authority</span>
+        <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+        <span class="text-xs font-bold text-slate-800" id="notice-modal-org">Authority</span>
       </div>
-      <button id="notice-close-btn" class="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center">
+      <button id="notice-close-btn" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-800 flex items-center justify-center">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <div class="text-[11px] text-slate-500 font-mono mb-1" id="notice-modal-date">2026-11-05</div>
-    <h3 id="notice-modal-title" class="text-base sm:text-lg font-bold text-slate-100 leading-snug mb-3">Notice Title</h3>
-    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed mb-6" id="notice-modal-desc">
-      Notice details and regulatory directives.
-    </div>
+    <div class="text-[11px] text-slate-400 font-mono mb-1" id="notice-modal-date"></div>
+    <h3 id="notice-modal-title" class="text-base font-bold text-slate-900 leading-snug mb-3">Notice Title</h3>
+    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed mb-6" id="notice-modal-desc"></div>
 
-    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800 text-xs">
-      <button id="notice-download-doc-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold hover:scale-[1.02] transition-transform flex items-center gap-1.5 shadow-lg">
-        <i data-lucide="download" class="w-4 h-4"></i> Download PDF Gazette
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 text-xs">
+      <button id="notice-download-doc-btn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-sm">
+        <i data-lucide="download" class="w-4 h-4"></i> Download PDF Notice
       </button>
     </div>
   </div>
 
   <!-- ==========================================
-       13. Policy & Legal Modal
+       15. Policy & Disclaimer Modal
        ========================================== -->
-  <div id="policy-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden transition-opacity"></div>
+  <div id="policy-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden transition-opacity"></div>
 
-  <div id="policy-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 glass-panel-glow rounded-3xl border border-cyan-500/40 hidden p-6 bg-slate-950 shadow-2xl">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-      <h3 id="policy-modal-title" class="text-base font-bold text-slate-100">Policy Title</h3>
-      <button id="policy-close-btn" class="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center">
+  <div id="policy-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+      <h3 id="policy-modal-title" class="text-base font-bold text-slate-900">Policy</h3>
+      <button id="policy-close-btn" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-800 flex items-center justify-center">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <div id="policy-modal-content" class="text-xs text-slate-300 leading-relaxed mb-4">
-      Policy text.
-    </div>
+    <div id="policy-modal-content" class="text-xs text-slate-700 leading-relaxed mb-4"></div>
 
-    <div class="text-right pt-3 border-t border-slate-800">
-      <button onclick="document.getElementById('policy-modal').classList.add('hidden'); document.getElementById('policy-backdrop').classList.add('hidden');" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700 transition-colors">
+    <div class="text-right pt-3 border-t border-slate-200">
+      <button onclick="document.getElementById('policy-modal').classList.add('hidden'); document.getElementById('policy-backdrop').classList.add('hidden');" class="px-4 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors">
         Close
       </button>
     </div>
   </div>
 
   <!-- ==========================================
-       14. Toast Notification Container
+       16. Toast Notification Container
        ========================================== -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
