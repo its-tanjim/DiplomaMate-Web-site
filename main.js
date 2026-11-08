@@ -456,30 +456,51 @@ document.addEventListener("DOMContentLoaded", () => {
   function initDepartmentExplorer() {
     const reg2022Btn = document.getElementById("reg-2022-btn");
     const reg2016Btn = document.getElementById("reg-2016-btn");
+    const modalReg2022Btn = document.getElementById("modal-reg-2022-btn");
+    const modalReg2016Btn = document.getElementById("modal-reg-2016-btn");
     const deptSearchInput = document.getElementById("dept-search-input");
 
-    // Regulation Switcher
-    if (reg2022Btn && reg2016Btn) {
-      reg2022Btn.addEventListener("click", () => {
-        AppState.selectedRegulation = "2022";
-        reg2022Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
-        reg2022Btn.classList.remove("text-slate-600", "hover:text-slate-900");
-        reg2016Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
-        reg2016Btn.classList.add("text-slate-600", "hover:text-slate-900");
-        renderDepartmentCards();
-        showToast("Displaying BTEB 2022 Regulation Syllabus", "info");
-      });
+    function setRegulation(reg) {
+      AppState.selectedRegulation = reg;
 
-      reg2016Btn.addEventListener("click", () => {
-        AppState.selectedRegulation = "2016";
-        reg2016Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
-        reg2016Btn.classList.remove("text-slate-600", "hover:text-slate-900");
-        reg2022Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
-        reg2022Btn.classList.add("text-slate-600", "hover:text-slate-900");
-        renderDepartmentCards();
-        showToast("Displaying BTEB 2016 Regulation Syllabus", "info");
-      });
+      // Update main page switcher
+      if (reg2022Btn && reg2016Btn) {
+        if (reg === "2022") {
+          reg2022Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
+          reg2022Btn.classList.remove("text-slate-600", "hover:text-slate-900");
+          reg2016Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
+          reg2016Btn.classList.add("text-slate-600", "hover:text-slate-900");
+        } else {
+          reg2016Btn.classList.add("bg-blue-600", "text-white", "shadow-sm");
+          reg2016Btn.classList.remove("text-slate-600", "hover:text-slate-900");
+          reg2022Btn.classList.remove("bg-blue-600", "text-white", "shadow-sm");
+          reg2022Btn.classList.add("text-slate-600", "hover:text-slate-900");
+        }
+      }
+
+      // Update modal switcher
+      if (modalReg2022Btn && modalReg2016Btn) {
+        if (reg === "2022") {
+          modalReg2022Btn.className = "px-3 py-1 rounded-lg transition-all bg-blue-600 text-white shadow-sm";
+          modalReg2016Btn.className = "px-3 py-1 rounded-lg transition-all text-slate-600 hover:text-slate-900";
+        } else {
+          modalReg2016Btn.className = "px-3 py-1 rounded-lg transition-all bg-blue-600 text-white shadow-sm";
+          modalReg2022Btn.className = "px-3 py-1 rounded-lg transition-all text-slate-600 hover:text-slate-900";
+        }
+      }
+
+      const regBadge = document.getElementById("syllabus-modal-reg-badge");
+      if (regBadge) regBadge.textContent = `${reg} Regulation`;
+
+      renderDepartmentCards();
+      renderSemesterSubjectList();
+      showToast(`Switched to BTEB ${reg} Regulation (Probidhan-${reg})`, "info");
     }
+
+    if (reg2022Btn) reg2022Btn.addEventListener("click", () => setRegulation("2022"));
+    if (reg2016Btn) reg2016Btn.addEventListener("click", () => setRegulation("2016"));
+    if (modalReg2022Btn) modalReg2022Btn.addEventListener("click", () => setRegulation("2022"));
+    if (modalReg2016Btn) modalReg2016Btn.addEventListener("click", () => setRegulation("2016"));
 
     if (deptSearchInput) {
       deptSearchInput.addEventListener("input", (e) => {
@@ -569,7 +590,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("syllabus-modal-dept-title").textContent = dept.name;
     document.getElementById("syllabus-modal-dept-bn").textContent = dept.bn_name;
-    document.getElementById("syllabus-modal-reg-badge").textContent = `${AppState.selectedRegulation} Regulation`;
+    
+    const regBadge = document.getElementById("syllabus-modal-reg-badge");
+    if (regBadge) regBadge.textContent = `${AppState.selectedRegulation} Regulation`;
+
+    const modalReg2022Btn = document.getElementById("modal-reg-2022-btn");
+    const modalReg2016Btn = document.getElementById("modal-reg-2016-btn");
+    if (modalReg2022Btn && modalReg2016Btn) {
+      if (AppState.selectedRegulation === "2022") {
+        modalReg2022Btn.className = "px-3 py-1 rounded-lg transition-all bg-blue-600 text-white shadow-sm";
+        modalReg2016Btn.className = "px-3 py-1 rounded-lg transition-all text-slate-600 hover:text-slate-900";
+      } else {
+        modalReg2016Btn.className = "px-3 py-1 rounded-lg transition-all bg-blue-600 text-white shadow-sm";
+        modalReg2022Btn.className = "px-3 py-1 rounded-lg transition-all text-slate-600 hover:text-slate-900";
+      }
+    }
 
     renderSemesterButtons();
     renderSemesterSubjectList();
@@ -616,33 +651,65 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderSemesterSubjectList() {
     const subjectsContainer = document.getElementById("syllabus-subjects-table-body");
     const totalCreditsEl = document.getElementById("syllabus-total-semester-credits");
+    const totalSubjectsEl = document.getElementById("syllabus-total-semester-subjects");
+    const totalMarksEl = document.getElementById("syllabus-total-semester-marks");
     if (!subjectsContainer) return;
 
     const subjects = getDepartmentSyllabus(AppState.selectedRegulation, AppState.selectedDepartment, AppState.selectedSemester);
 
     let totalC = 0;
-    subjects.forEach((s) => (totalC += s.c || 0));
+    let totalM = 0;
+    if (Array.isArray(subjects)) {
+      subjects.forEach((s) => {
+        const c = s.credit ?? s.c ?? 0;
+        const marks = s.marks ?? (c * 50);
+        totalC += c;
+        totalM += marks;
+      });
+    }
+
     if (totalCreditsEl) totalCreditsEl.textContent = totalC;
+    if (totalSubjectsEl) totalSubjectsEl.textContent = Array.isArray(subjects) ? subjects.length : 0;
+    if (totalMarksEl) totalMarksEl.textContent = totalM;
+
+    if (!subjects || subjects.length === 0) {
+      subjectsContainer.innerHTML = `
+        <tr>
+          <td colspan="7" class="py-8 text-center text-slate-500 text-xs">
+            No subjects found for this semester.
+          </td>
+        </tr>
+      `;
+      return;
+    }
 
     subjectsContainer.innerHTML = subjects
-      .map(
-        (s) => `
+      .map((s) => {
+        const code = s.code || "---";
+        const title = s.name || s.title || "Untitled Subject";
+        const t = s.theory_per_week ?? s.t ?? 0;
+        const p = s.practical_per_week ?? s.p ?? 0;
+        const c = s.credit ?? s.c ?? 0;
+        const marks = s.marks ?? (c * 50);
+
+        return `
       <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
-        <td class="py-3 px-4 font-mono font-bold text-blue-700 text-xs">${s.code}</td>
+        <td class="py-3 px-4 font-mono font-bold text-blue-700 text-xs">${code}</td>
         <td class="py-3 px-4 text-slate-900 font-medium text-xs">
-          ${s.title}
+          ${title}
         </td>
-        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${s.t}</td>
-        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${s.p}</td>
-        <td class="py-3 px-4 text-center font-mono font-bold text-slate-900 text-xs">${s.c}</td>
+        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${t}</td>
+        <td class="py-3 px-4 text-center font-mono text-slate-600 text-xs">${p}</td>
+        <td class="py-3 px-4 text-center font-mono font-bold text-slate-900 text-xs">${c}</td>
+        <td class="py-3 px-4 text-center font-mono font-semibold text-emerald-700 text-xs">${marks}</td>
         <td class="py-3 px-4 text-right">
-          <button class="download-subject-syllabus-btn px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors text-xs font-medium flex items-center gap-1 ml-auto" data-code="${s.code}" data-title="${s.title}">
+          <button class="download-subject-syllabus-btn px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors text-xs font-medium flex items-center gap-1 ml-auto" data-code="${code}" data-title="${title}">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> PDF
           </button>
         </td>
       </tr>
-    `
-      )
+    `;
+      })
       .join("");
 
     lucide.createIcons();

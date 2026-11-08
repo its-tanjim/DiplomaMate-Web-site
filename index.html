@@ -819,13 +819,13 @@
   <div id="syllabus-modal" class="fixed inset-4 sm:inset-10 lg:inset-x-32 lg:inset-y-12 z-50 bg-white rounded-2xl border border-slate-200 hidden flex flex-col overflow-hidden shadow-2xl">
     
     <!-- Modal Header -->
-    <div class="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+    <div class="p-5 sm:p-6 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
           <i data-lucide="book-open" class="w-5 h-5"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <h3 id="syllabus-modal-dept-title" class="text-lg font-bold text-slate-900">Technology Title</h3>
             <span id="syllabus-modal-reg-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">2022 Regulation</span>
           </div>
@@ -833,16 +833,29 @@
         </div>
       </div>
 
-      <button id="syllabus-modal-close-btn" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- In-Modal Regulation Switcher -->
+        <div class="inline-flex p-1 rounded-xl bg-slate-200/80 border border-slate-200 text-xs font-semibold">
+          <button id="modal-reg-2022-btn" class="px-3 py-1 rounded-lg transition-all bg-blue-600 text-white shadow-sm">
+            2022 Probidhan
+          </button>
+          <button id="modal-reg-2016-btn" class="px-3 py-1 rounded-lg transition-all text-slate-600 hover:text-slate-900">
+            2016 Probidhan
+          </button>
+        </div>
+        <button id="syllabus-modal-close-btn" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Semester Selector Bar -->
     <div class="px-6 py-3.5 bg-slate-50/70 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
       <div id="syllabus-semester-selector" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"></div>
-      <div class="text-xs font-medium text-slate-600">
-        Total Credits: <span id="syllabus-total-semester-credits" class="font-mono font-bold text-slate-900"></span>
+      <div class="flex items-center gap-3 sm:gap-4 text-xs font-medium text-slate-600">
+        <span>Subjects: <strong id="syllabus-total-semester-subjects" class="font-mono text-slate-900">0</strong></span>
+        <span>Credits: <strong id="syllabus-total-semester-credits" class="font-mono text-slate-900">0</strong></span>
+        <span>Marks: <strong id="syllabus-total-semester-marks" class="font-mono text-slate-900">0</strong></span>
       </div>
     </div>
 
@@ -852,12 +865,13 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 bg-slate-50">
-              <th class="py-2.5 px-4">Subject Code</th>
-              <th class="py-2.5 px-4">Subject Title</th>
-              <th class="py-2.5 px-4 text-center">Theory (T)</th>
-              <th class="py-2.5 px-4 text-center">Practical (P)</th>
-              <th class="py-2.5 px-4 text-center">Credits (C)</th>
-              <th class="py-2.5 px-4 text-right">Action</th>
+              <th class="py-2.5 px-4 font-semibold">Subject Code</th>
+              <th class="py-2.5 px-4 font-semibold">Subject Title</th>
+              <th class="py-2.5 px-4 text-center font-semibold">Theory (T)</th>
+              <th class="py-2.5 px-4 text-center font-semibold">Practical (P)</th>
+              <th class="py-2.5 px-4 text-center font-semibold">Credits (C)</th>
+              <th class="py-2.5 px-4 text-center font-semibold">Total Marks</th>
+              <th class="py-2.5 px-4 text-right font-semibold">Action</th>
             </tr>
           </thead>
           <tbody id="syllabus-subjects-table-body"></tbody>
@@ -865,9 +879,9 @@
       </div>
     </div>
 
-    <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-      <div>T = Theory Contact Hours &bull; P = Practical Hours &bull; C = Total Credits</div>
-      <div class="font-mono text-blue-700">Bangladesh Technical Education Board</div>
+    <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+      <div>T = Theory Hours &bull; P = Practical Hours &bull; C = Total Credits (1 Credit = 50 Marks)</div>
+      <div class="font-mono text-blue-700 font-medium">Bangladesh Technical Education Board (BTEB)</div>
     </div>
   </div>
 
