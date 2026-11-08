@@ -6,6 +6,10 @@
   <title>DiplomaMate - BTEB Polytechnic Portal | Bangladesh Technical Education</title>
   <meta name="description" content="Clean, comprehensive academic portal for Bangladesh Government Polytechnic Institutes, BTEB 2016 & 2022 regulation syllabi, official CGPA calculator, and circulars.">
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/logo-icon.png">
+  <link rel="apple-touch-icon" href="images/logo-icon.png">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -70,16 +74,17 @@
       <div class="flex items-center justify-between h-20">
 
         <!-- Brand Logo -->
-        <a href="#" class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
-            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xl font-extrabold tracking-tight text-slate-900">DiplomaMate</span>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Portal</span>
+        <a href="#" class="flex items-center gap-3.5 group transition-transform hover:scale-[1.01]" aria-label="DiplomaMate Home">
+          <img src="images/logo.png" alt="Diploma Mate" class="navbar-brand-logo">
+          <div class="hidden sm:block border-l border-slate-200 pl-3.5 py-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                BTEB Portal
+              </span>
             </div>
-            <span class="text-xs text-slate-500 font-medium block">BTEB Polytechnic Information System</span>
+            <span class="text-[11px] text-slate-500 font-medium block mt-0.5">
+              Polytechnic Information System
+            </span>
           </div>
         </a>
 
@@ -583,9 +588,7 @@
           </div>
 
           <div class="p-6 rounded-2xl bg-blue-50 border border-blue-100 text-center shrink-0">
-            <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3 shadow-sm">
-              <i data-lucide="smartphone" class="w-8 h-8"></i>
-            </div>
+            <img src="images/logo-icon.png" alt="DiplomaMate App" class="w-16 h-16 rounded-2xl bg-white p-2 border border-blue-200 mx-auto mb-3 shadow-sm object-contain">
             <div class="font-bold text-sm text-slate-900">DiplomaMate v2.4</div>
             <div class="text-xs text-blue-700 font-medium mt-0.5">Offline Syllabus & Questions</div>
           </div>
@@ -605,10 +608,7 @@
         <!-- Column 1: Institutional Brand -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
-              <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-            </div>
-            <span class="text-base font-bold text-slate-900">DiplomaMate</span>
+            <img src="images/logo.png" alt="Diploma Mate" class="footer-brand-logo">
           </div>
           <p class="leading-relaxed text-slate-600">
             Open-access educational resource and directory supporting diploma engineering students and faculties across Bangladesh.
