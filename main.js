@@ -24,30 +24,44 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ==========================================
-  // 1. Interactive Bangladesh Map (Leaflet + OpenStreetMap)
+  // 1. Full Standard Interactive Bangladesh Map (Leaflet + OpenStreetMap)
   // ==========================================
   function initBangladeshMap() {
     const mapElement = document.getElementById("bangladesh-map");
     if (!mapElement || typeof L === "undefined") return;
 
-    // Initialize Map strictly constrained to Bangladesh bounds
+    // Initialize Map centered at Bangladesh, smoothly displaying wider regional area
     const map = L.map("bangladesh-map", {
       center: BD_CENTER,
       zoom: 7,
-      minZoom: 6,
+      minZoom: 4,
       maxZoom: 18,
-      maxBounds: BANGLADESH_BOUNDS,
-      maxBoundsViscosity: 1.0, // Hard lock: users cannot drag outside Bangladesh!
       zoomControl: true,
       attributionControl: true
     });
 
-    // 100% Free Leaflet OpenStreetMap Tile Layer using requested subdomains
+    // 100% Free Leaflet OpenStreetMap Tile Layer (shows full wider geography smoothly)
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       subdomains: ["a", "b", "c"],
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    // Subtle Internal Division Boundaries
+    if (typeof BANGLADESH_DIVISIONS_GEOJSON !== "undefined") {
+      const divLayer = L.geoJSON(BANGLADESH_DIVISIONS_GEOJSON, {
+        style: {
+          color: "#94a3b8",
+          weight: 1.2,
+          dashArray: "3, 3",
+          opacity: 0.6,
+          fillColor: "#3b82f6",
+          fillOpacity: 0
+        },
+        interactive: false
+      }).addTo(map);
+      AppState.divisionsLayer = divLayer;
+    }
 
     AppState.map = map;
 
@@ -66,8 +80,52 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetMapBtn = document.getElementById("reset-map-view-btn");
     if (resetMapBtn) {
       resetMapBtn.addEventListener("click", () => {
-        map.flyTo(BD_CENTER, 7, { duration: 1 });
-        setTimeout(() => map.invalidateSize(), 1000);
+        closeCollegeDrawer();
+        clearMarkerHighlights();
+
+        const mapEl = document.getElementById("bangladesh-map");
+        if (mapEl) mapEl.classList.remove("drone-flight-active");
+
+        const hudEl = document.getElementById("map-drone-hud");
+        if (hudEl) {
+          hudEl.classList.remove("opacity-100", "translate-y-0");
+          hudEl.classList.add("opacity-0", "-translate-y-2");
+          setTimeout(() => hudEl.classList.add("hidden"), 200);
+        }
+
+        if (activeFlightTimeout) {
+          clearTimeout(activeFlightTimeout);
+          activeFlightTimeout = null;
+        }
+
+        // Reset division filter buttons to All
+        const filterBtns = document.querySelectorAll(".division-filter-btn");
+        filterBtns.forEach((b) => {
+          if (b.dataset.division === "All") {
+            b.classList.add("active", "bg-blue-600", "text-white");
+            b.classList.remove("bg-white", "text-slate-700", "hover:bg-slate-100");
+          } else {
+            b.classList.remove("active", "bg-blue-600", "text-white");
+            b.classList.add("bg-white", "text-slate-700", "hover:bg-slate-100");
+          }
+        });
+        AppState.selectedDivision = "All";
+        filterMapMarkers("All");
+
+        if (AppState.divisionsLayer) {
+          AppState.divisionsLayer.eachLayer((layer) => {
+            layer.setStyle({
+              color: "#94a3b8",
+              weight: 1.2,
+              dashArray: "3, 3",
+              fillColor: "#3b82f6",
+              fillOpacity: 0
+            });
+          });
+        }
+
+        map.flyTo(BD_CENTER, 7, { duration: 1.2, easeLinearity: 0.25 });
+        setTimeout(() => map.invalidateSize(), 1300);
       });
     }
 
@@ -230,6 +288,30 @@ document.addEventListener("DOMContentLoaded", () => {
       AppState.map.flyTo(BD_CENTER, 7, { duration: 1 });
     }
 
+    // Highlight active division polygon if divisionsLayer exists
+    if (AppState.divisionsLayer) {
+      AppState.divisionsLayer.eachLayer((layer) => {
+        const divName = layer.feature?.properties?.normalizedDivision;
+        if (division !== "All" && divName && divName.toLowerCase() === division.toLowerCase()) {
+          layer.setStyle({
+            color: "#1d4ed8",
+            weight: 2,
+            dashArray: null,
+            fillColor: "#3b82f6",
+            fillOpacity: 0.12
+          });
+        } else {
+          layer.setStyle({
+            color: "#94a3b8",
+            weight: 1.2,
+            dashArray: "3, 3",
+            fillColor: "#3b82f6",
+            fillOpacity: 0
+          });
+        }
+      });
+    }
+
     setTimeout(() => {
       if (AppState.map) AppState.map.invalidateSize();
     }, 300);
@@ -244,21 +326,125 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Select Polytechnic (Fly Camera & Open Drawer)
+  let activeFlightTimeout = null;
+
+  function clearMarkerHighlights() {
+    if (!AppState.markers) return;
+    AppState.markers.forEach((m) => {
+      const el = m.getElement();
+      if (!el) return;
+      const pin = el.querySelector(".edu-pin-marker");
+      if (pin) pin.classList.remove("beacon-locked");
+      if (m.setZIndexOffset) m.setZIndexOffset(0);
+    });
+  }
+
+  function highlightTargetMarker(poly) {
+    if (!AppState.markers) return;
+    AppState.markers.forEach((m) => {
+      const el = m.getElement();
+      if (!el) return;
+      const pin = el.querySelector(".edu-pin-marker");
+      if (!pin) return;
+
+      if (m.polyData && m.polyData.id === poly.id) {
+        pin.classList.add("beacon-locked");
+        if (m.setZIndexOffset) m.setZIndexOffset(1000);
+      } else {
+        pin.classList.remove("beacon-locked");
+        if (m.setZIndexOffset) m.setZIndexOffset(0);
+      }
+    });
+  }
+
+  // Cinematic Smooth Camera Drone Flight & College Portal Opening
   function selectPolytechnic(poly) {
+    if (!poly || !poly.coordinates) return;
     AppState.currentPolytechnic = poly;
 
-    if (AppState.map) {
-      AppState.map.flyTo(poly.coordinates, 12, {
-        duration: 1.2
-      });
-      setTimeout(() => {
-        if (AppState.map) AppState.map.invalidateSize();
-      }, 400);
-    }
+    // 1. Temporarily close drawer so user can enjoy the smooth camera flight
+    closeCollegeDrawer();
 
+    // 2. Pre-fill college data into the drawer
     populateCollegeDrawer(poly);
-    openCollegeDrawer();
+
+    // 3. Highlight target college marker with radiant radar beacon
+    highlightTargetMarker(poly);
+
+    if (AppState.map) {
+      const mapEl = document.getElementById("bangladesh-map");
+      const hudEl = document.getElementById("map-drone-hud");
+      const hudName = document.getElementById("map-drone-college-name");
+      const hudCoords = document.getElementById("map-drone-coords");
+
+      // Display Camera Flight HUD Telemetry
+      if (hudEl) {
+        if (hudName) hudName.textContent = poly.name;
+        if (hudCoords) {
+          hudCoords.textContent = `${poly.coordinates[0].toFixed(4)}° N, ${poly.coordinates[1].toFixed(4)}° E • ${poly.district}`;
+        }
+        hudEl.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          hudEl.classList.remove("opacity-0", "-translate-y-2");
+          hudEl.classList.add("opacity-100", "translate-y-0");
+        });
+      }
+
+      // Activate slight 3D camera drone flight tilt
+      if (mapEl) {
+        mapEl.classList.add("drone-flight-active");
+      }
+
+      // Close open popups to ensure clear view
+      AppState.map.closePopup();
+
+      if (activeFlightTimeout) {
+        clearTimeout(activeFlightTimeout);
+        activeFlightTimeout = null;
+      }
+
+      const flightDuration = 1.6; // 1.6 seconds smooth transition
+      let arrived = false;
+
+      const onFlightTouchdown = () => {
+        if (arrived) return;
+        arrived = true;
+
+        if (mapEl) {
+          mapEl.classList.remove("drone-flight-active");
+        }
+
+        if (hudEl) {
+          hudEl.classList.remove("opacity-100", "translate-y-0");
+          hudEl.classList.add("opacity-0", "-translate-y-2");
+          setTimeout(() => hudEl.classList.add("hidden"), 300);
+        }
+
+        if (AppState.map) AppState.map.invalidateSize();
+
+        // After touching down, smoothly slide open the college information portal
+        setTimeout(() => {
+          openCollegeDrawer();
+        }, 250);
+      };
+
+      // Execute smooth, cinematic camera transition
+      AppState.map.flyTo(poly.coordinates, 14, {
+        duration: flightDuration,
+        easeLinearity: 0.25
+      });
+
+      // Listen for arrival
+      AppState.map.once("moveend", onFlightTouchdown);
+
+      // Safety timeout in case moveend doesn't trigger
+      activeFlightTimeout = setTimeout(() => {
+        onFlightTouchdown();
+      }, (flightDuration * 1000) + 150);
+
+    } else {
+      openCollegeDrawer();
+    }
   }
 
   // ==========================================
@@ -282,8 +468,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (drawerBackdrop) drawerBackdrop.classList.add("hidden");
   }
 
-  if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeCollegeDrawer);
-  if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeCollegeDrawer);
+  if (drawerCloseBtn) {
+    drawerCloseBtn.addEventListener("click", () => {
+      closeCollegeDrawer();
+      clearMarkerHighlights();
+    });
+  }
+  if (drawerBackdrop) {
+    drawerBackdrop.addEventListener("click", () => {
+      closeCollegeDrawer();
+      clearMarkerHighlights();
+    });
+  }
 
   function populateCollegeDrawer(poly) {
     if (!poly) return;
