@@ -1297,7 +1297,7 @@ document.addEventListener("DOMContentLoaded", () => {
         openPolicyModal(
           "Privacy Policy",
           `<p class="mb-3 text-slate-700">DiplomaMate respects student privacy. We operate as an open educational utility and do not collect, sell, or monitor personal identifiable telemetry.</p>
-           <p class="mb-3 text-slate-700">CGPA computations and routine entries are performed completely client-side in your web browser.</p>`
+           <p class="mb-3 text-slate-700">CGPA computations and portal entries are performed completely client-side in your web browser.</p>`
         );
       } else if (type === "terms") {
         openPolicyModal(
@@ -1325,11 +1325,1001 @@ document.addEventListener("DOMContentLoaded", () => {
       closeTranscriptModal();
       closeNoticeModal();
       closePolicyModal();
+      closePrintableResultModal();
+      closePrintableAttendanceModal();
     }
   });
 
   // ==========================================
-  // 9. Toast Notification Helper
+  // 6. BTEB Result Section / Portal Controller
+  // ==========================================
+  let currentResultData = null;
+
+  function closePrintableResultModal() {
+    const modal = document.getElementById("printable-result-modal");
+    const backdrop = document.getElementById("printable-result-backdrop");
+    if (modal) modal.classList.add("hidden");
+    if (backdrop) backdrop.classList.add("hidden");
+  }
+
+  function openPrintableResultModal() {
+    const modal = document.getElementById("printable-result-modal");
+    const backdrop = document.getElementById("printable-result-backdrop");
+    if (modal) modal.classList.remove("hidden");
+    if (backdrop) backdrop.classList.remove("hidden");
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+
+  function initBTEBResultPortal() {
+    const form = document.getElementById("result-search-form");
+    const deptSelect = document.getElementById("result-dept-select");
+    const semSelect = document.getElementById("result-sem-select");
+    const rollInput = document.getElementById("result-roll-input");
+    const regInput = document.getElementById("result-reg-input");
+    const yearSelect = document.getElementById("result-year-select");
+    const clearBtn = document.getElementById("result-clear-btn");
+    const sampleBtns = document.querySelectorAll(".sample-roll-btn");
+
+    if (!form || !deptSelect) return;
+
+    // Populate department options from TECHNOLOGIES_DATA
+    if (typeof TECHNOLOGIES_DATA !== "undefined" && Array.isArray(TECHNOLOGIES_DATA)) {
+      deptSelect.innerHTML = TECHNOLOGIES_DATA.map(tech => 
+        `<option value="${tech.id}" ${tech.id === "cst" ? "selected" : ""}>${tech.name} (${tech.code})</option>`
+      ).join("");
+    }
+
+    // Quick Sample Demo Buttons
+    sampleBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const roll = btn.dataset.roll;
+        const dept = btn.dataset.dept;
+        const sem = btn.dataset.sem;
+        const reg = btn.dataset.reg;
+
+        // Set radio for regulation
+        const regRadios = document.querySelectorAll('input[name="res-regulation"]');
+        regRadios.forEach(r => {
+          r.checked = (r.value === reg);
+        });
+
+        if (deptSelect) deptSelect.value = dept;
+        if (semSelect) semSelect.value = sem;
+        if (rollInput) rollInput.value = roll;
+        if (regInput) regInput.value = "1502" + roll;
+        if (yearSelect) yearSelect.value = "2024";
+
+        executeResultSearch(roll, "1502" + roll, dept, sem, reg, "2024");
+      });
+    });
+
+    // Form Submit
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const roll = rollInput ? rollInput.value.trim() : "";
+      const regNo = regInput && regInput.value.trim() ? regInput.value.trim() : ("1502" + roll);
+      const dept = deptSelect ? deptSelect.value : "cst";
+      const sem = semSelect ? semSelect.value : "4";
+      const year = yearSelect ? yearSelect.value : "2024";
+      const regRadio = document.querySelector('input[name="res-regulation"]:checked');
+      const reg = regRadio ? regRadio.value : "2022";
+
+      if (!roll || roll.length < 4) {
+        showToast("Please enter a valid 6-digit BTEB Roll number.", "error");
+        if (rollInput) rollInput.focus();
+        return;
+      }
+
+      executeResultSearch(roll, regNo, dept, sem, reg, year);
+    });
+
+    // Clear Button
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        form.reset();
+        const initialCard = document.getElementById("result-initial-card");
+        const loadingCard = document.getElementById("result-loading-card");
+        const outputCard = document.getElementById("result-output-card");
+        if (initialCard) initialCard.classList.remove("hidden");
+        if (loadingCard) loadingCard.classList.add("hidden");
+        if (outputCard) outputCard.classList.add("hidden");
+        currentResultData = null;
+      });
+    }
+
+    // New Search Button on Output Card
+    const newSearchBtn = document.getElementById("res-new-search-btn");
+    if (newSearchBtn) {
+      newSearchBtn.addEventListener("click", () => {
+        const initialCard = document.getElementById("result-initial-card");
+        const outputCard = document.getElementById("result-output-card");
+        if (initialCard) initialCard.classList.remove("hidden");
+        if (outputCard) outputCard.classList.add("hidden");
+        if (rollInput) {
+          rollInput.focus();
+          rollInput.select();
+        }
+      });
+    }
+
+    // Print Marksheet Action
+    const printMarksheetBtn = document.getElementById("res-print-marksheet-btn");
+    if (printMarksheetBtn) {
+      printMarksheetBtn.addEventListener("click", () => {
+        if (!currentResultData) return;
+        populatePrintableResult(currentResultData);
+        openPrintableResultModal();
+      });
+    }
+
+    const printCloseBtn = document.getElementById("printable-result-close-btn");
+    const printBackdrop = document.getElementById("printable-result-backdrop");
+    if (printCloseBtn) printCloseBtn.addEventListener("click", closePrintableResultModal);
+    if (printBackdrop) printBackdrop.addEventListener("click", closePrintableResultModal);
+
+    const printActionBtn = document.getElementById("print-result-action-btn");
+    if (printActionBtn) {
+      printActionBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
+  }
+
+  function executeResultSearch(roll, regNo, deptId, semester, regulation, year) {
+    const initialCard = document.getElementById("result-initial-card");
+    const loadingCard = document.getElementById("result-loading-card");
+    const outputCard = document.getElementById("result-output-card");
+
+    if (initialCard) initialCard.classList.add("hidden");
+    if (outputCard) outputCard.classList.add("hidden");
+    if (loadingCard) loadingCard.classList.remove("hidden");
+
+    setTimeout(() => {
+      // Normalize department alias
+      const DEPT_MAP = {
+        civil: "ct",
+        electrical: "et",
+        mechanical: "mt",
+        power: "pt",
+        computer: "cst",
+        food: "ft",
+        telecom: "tct",
+        electronics: "ent",
+        auto: "at",
+        automobile: "at",
+        chemical: "cht",
+        architecture: "arch"
+      };
+      const normalizedDept = DEPT_MAP[String(deptId).toLowerCase()] || deptId;
+
+      // Fetch official subjects from syllabusData
+      let subjects = [];
+      if (typeof getDepartmentSyllabus === "function") {
+        subjects = getDepartmentSyllabus(regulation, normalizedDept, parseInt(semester));
+      }
+
+      // Robust fallback if empty
+      if (!subjects || subjects.length === 0) {
+        subjects = [
+          { code: "28541", title: "Core Technology Practice & Engineering", credit: 4, fullMarks: 200 },
+          { code: "28542", title: "Microprocessor & Embedded Systems", credit: 3, fullMarks: 150 },
+          { code: "28543", title: "Database Systems & Administration", credit: 3, fullMarks: 150 },
+          { code: "28544", title: "Applied Mathematics & Statistics", credit: 3, fullMarks: 150 },
+          { code: "25841", title: "Business Communication & Ethics", credit: 2, fullMarks: 100 },
+          { code: "28545", title: "Hardware Interfacing Project", credit: 2, fullMarks: 100 }
+        ];
+      }
+
+      // Authentic Student Names Pool
+      const STUDENT_NAMES = [
+        "Md. Tanvir Hossain", "Sadia Sultana", "Md. Rakibul Hasan",
+        "Fatema Tuz Zohra", "Shakil Ahmed", "Nusrat Jahan",
+        "Arifur Rahman", "Mehedi Hasan", "Farhana Akter",
+        "Sabbir Hossain", "Shahriar Kabir", "Jannatul Ferdous",
+        "Md. Nayeem Islam", "Tasnim Ara", "Ashikur Rahman"
+      ];
+
+      // Deterministic roll hash for reproducible results
+      let rollHash = 0;
+      for (let i = 0; i < roll.length; i++) {
+        rollHash = (rollHash * 31 + roll.charCodeAt(i)) % 100000;
+      }
+      const studentName = STUDENT_NAMES[rollHash % STUDENT_NAMES.length];
+
+      // Find institute
+      let institute = { name: "Dhaka Polytechnic Institute", code: "50117" };
+      if (typeof POLYTECHNIC_DATA !== "undefined" && POLYTECHNIC_DATA.length > 0) {
+        institute = POLYTECHNIC_DATA[rollHash % POLYTECHNIC_DATA.length];
+      }
+
+      // Find Technology Info
+      let techInfo = { name: "Computer Science & Technology", code: "685" };
+      if (typeof TECHNOLOGIES_DATA !== "undefined") {
+        const found = TECHNOLOGIES_DATA.find(t => t.id === normalizedDept);
+        if (found) techInfo = found;
+      }
+
+      // Compute Course Marks
+      let totalEarnedCredits = 0;
+      let totalFullMarks = 0;
+      let totalObtainedMarks = 0;
+      let weightedPointsSum = 0;
+
+      const processedCourses = subjects.map((subj, idx) => {
+        const credit = subj.credit || 3;
+        const fullMarks = subj.fullMarks || (credit * 50);
+        const codeNum = parseInt(String(subj.code).replace(/\D/g, "")) || (idx + 100);
+
+        // Deterministic mark ratio between 76% and 93%
+        const scoreRatio = 0.76 + (((rollHash + (codeNum * 7) + idx * 11) % 18) / 100);
+        const obtained = Math.round(fullMarks * scoreRatio);
+
+        // Splits for TC, TF, PC, PF
+        const tc = Math.round(fullMarks * 0.20 * scoreRatio);
+        const tf = Math.round(fullMarks * 0.40 * scoreRatio);
+        const pc = Math.round(fullMarks * 0.20 * scoreRatio);
+        const pf = obtained - (tc + tf + pc);
+
+        const pct = (obtained / fullMarks) * 100;
+        let gp = 4.00;
+        let letter = "A+";
+
+        if (pct >= 80)      { gp = 4.00; letter = "A+"; }
+        else if (pct >= 75) { gp = 3.75; letter = "A"; }
+        else if (pct >= 70) { gp = 3.50; letter = "A-"; }
+        else if (pct >= 65) { gp = 3.25; letter = "B+"; }
+        else if (pct >= 60) { gp = 3.00; letter = "B"; }
+        else if (pct >= 55) { gp = 2.75; letter = "B-"; }
+        else if (pct >= 50) { gp = 2.50; letter = "C+"; }
+        else if (pct >= 45) { gp = 2.25; letter = "C"; }
+        else if (pct >= 40) { gp = 2.00; letter = "D"; }
+        else                { gp = 0.00; letter = "F"; }
+
+        totalEarnedCredits += credit;
+        totalFullMarks += fullMarks;
+        totalObtainedMarks += obtained;
+        weightedPointsSum += (gp * credit);
+
+        return {
+          code: subj.code,
+          title: subj.title,
+          credit: credit,
+          fullMarks: fullMarks,
+          tc: tc,
+          tf: tf,
+          pc: pc,
+          pf: pf,
+          obtained: obtained,
+          gp: gp.toFixed(2),
+          letter: letter
+        };
+      });
+
+      const gpa = (weightedPointsSum / totalEarnedCredits).toFixed(2);
+      const overallPct = ((totalObtainedMarks / totalFullMarks) * 100).toFixed(1);
+
+      let overallLetter = "A+ (Outstanding)";
+      let gradePillClass = "grade-pill-aplus";
+      if (gpa >= 4.00) {
+        overallLetter = "A+ (Outstanding)";
+        gradePillClass = "grade-pill-aplus";
+      } else if (gpa >= 3.75) {
+        overallLetter = "A (Excellent)";
+        gradePillClass = "grade-pill-a";
+      } else if (gpa >= 3.50) {
+        overallLetter = "A- (Very Good)";
+        gradePillClass = "grade-pill-aminus";
+      } else if (gpa >= 3.25) {
+        overallLetter = "B+ (Good)";
+        gradePillClass = "grade-pill-bplus";
+      } else if (gpa >= 3.00) {
+        overallLetter = "B (Satisfactory)";
+        gradePillClass = "grade-pill-b";
+      } else {
+        overallLetter = "C+ (Pass)";
+        gradePillClass = "grade-pill-cplus";
+      }
+
+      const resultData = {
+        roll: roll,
+        regNo: regNo,
+        studentName: studentName,
+        instituteName: institute.name,
+        instituteCode: institute.code,
+        techName: techInfo.name,
+        techCode: techInfo.code,
+        semester: semester,
+        regulation: regulation,
+        year: year,
+        session: (parseInt(year) - 1) + "-" + String(year).slice(2),
+        courses: processedCourses,
+        totalCredits: totalEarnedCredits,
+        totalFullMarks: totalFullMarks,
+        totalObtainedMarks: totalObtainedMarks,
+        overallPct: overallPct,
+        gpa: gpa,
+        overallLetter: overallLetter,
+        gradePillClass: gradePillClass,
+        publishedDate: "November 2026"
+      };
+
+      currentResultData = resultData;
+
+      // Update Screen Output Card
+      const regHeaderBadge = document.getElementById("res-badge-reg-header");
+      if (regHeaderBadge) regHeaderBadge.textContent = `Curriculum ${regulation}`;
+
+      const nameEl = document.getElementById("res-student-name");
+      if (nameEl) nameEl.textContent = studentName;
+
+      const rollDisp = document.getElementById("res-roll-display");
+      if (rollDisp) rollDisp.textContent = roll;
+
+      const regDisp = document.getElementById("res-reg-display");
+      if (regDisp) regDisp.textContent = `Reg: ${regNo}`;
+
+      const techDisp = document.getElementById("res-technology-name");
+      if (techDisp) techDisp.textContent = techInfo.name;
+
+      const techCodeDisp = document.getElementById("res-technology-code");
+      if (techCodeDisp) techCodeDisp.textContent = `Code: ${techInfo.code}`;
+
+      const semDisp = document.getElementById("res-semester-name");
+      if (semDisp) semDisp.textContent = `${semester}th Semester Examination`;
+
+      const sessionDisp = document.getElementById("res-session-display");
+      if (sessionDisp) sessionDisp.textContent = `Session: ${resultData.session}`;
+
+      const instDisp = document.getElementById("res-institute-name");
+      if (instDisp) instDisp.textContent = institute.name;
+
+      const instCodeDisp = document.getElementById("res-institute-code");
+      if (instCodeDisp) instCodeDisp.textContent = institute.code;
+
+      const gpaEl = document.getElementById("res-gpa-val");
+      if (gpaEl) gpaEl.textContent = gpa;
+
+      const gradeEl = document.getElementById("res-grade-val");
+      if (gradeEl) {
+        gradeEl.className = `grade-pill ${gradePillClass} text-sm px-3 py-0.5`;
+        gradeEl.textContent = overallLetter;
+      }
+
+      const obtEl = document.getElementById("res-marks-obtained");
+      if (obtEl) obtEl.textContent = totalObtainedMarks;
+
+      const totEl = document.getElementById("res-marks-total");
+      if (totEl) totEl.textContent = `/ ${totalFullMarks}`;
+
+      const pctEl = document.getElementById("res-marks-percent");
+      if (pctEl) pctEl.textContent = `${overallPct}% Marks`;
+
+      const credEl = document.getElementById("res-credits-val");
+      if (credEl) credEl.textContent = totalEarnedCredits;
+
+      // Populate Table Body
+      const tbody = document.getElementById("res-table-body");
+      if (tbody) {
+        tbody.innerHTML = processedCourses.map(c => `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${c.code}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800">${c.title}</td>
+            <td class="py-2.5 px-2 text-center font-mono">${c.credit}</td>
+            <td class="py-2.5 px-2 text-center font-mono">${c.fullMarks}</td>
+            <td class="py-2.5 px-2 text-center font-mono text-slate-500">${c.tc}</td>
+            <td class="py-2.5 px-2 text-center font-mono text-slate-500">${c.tf}</td>
+            <td class="py-2.5 px-2 text-center font-mono text-slate-500">${c.pc}</td>
+            <td class="py-2.5 px-2 text-center font-mono text-slate-500">${c.pf}</td>
+            <td class="py-2.5 px-2 text-center font-mono font-bold text-slate-900">${c.obtained}</td>
+            <td class="py-2.5 px-2 text-center font-mono font-bold text-blue-700">${c.gp}</td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="grade-pill ${getGradePillClass(c.letter)}">${c.letter}</span>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      // Hide loading, show output
+      if (loadingCard) loadingCard.classList.add("hidden");
+      if (outputCard) outputCard.classList.remove("hidden");
+
+      if (typeof lucide !== "undefined") lucide.createIcons();
+      showToast(`Board result for Roll ${roll} retrieved successfully.`, "success");
+
+      // Smooth scroll output card into view
+      outputCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 450);
+  }
+
+  function getGradePillClass(letter) {
+    switch (letter) {
+      case "A+": return "grade-pill-aplus";
+      case "A":  return "grade-pill-a";
+      case "A-": return "grade-pill-aminus";
+      case "B+": return "grade-pill-bplus";
+      case "B":  return "grade-pill-b";
+      case "B-": return "grade-pill-bminus";
+      case "C+": return "grade-pill-cplus";
+      case "C":  return "grade-pill-c";
+      case "D":  return "grade-pill-d";
+      default:   return "grade-pill-f";
+    }
+  }
+
+  function populatePrintableResult(data) {
+    document.getElementById("print-res-curriculum").textContent = `Curriculum ${data.regulation}`;
+    document.getElementById("print-res-name").textContent = data.studentName;
+    document.getElementById("print-res-roll").textContent = data.roll;
+    document.getElementById("print-res-reg").textContent = data.regNo;
+    document.getElementById("print-res-institute").textContent = data.instituteName;
+    document.getElementById("print-res-inst-code").textContent = data.instituteCode;
+    document.getElementById("print-res-tech").textContent = data.techName;
+    document.getElementById("print-res-tech-code").textContent = data.techCode;
+    document.getElementById("print-res-semester").textContent = `${data.semester}th Semester`;
+    document.getElementById("print-res-session").textContent = data.session;
+    document.getElementById("print-res-full-marks").textContent = data.totalFullMarks;
+    document.getElementById("print-res-obtained-marks").textContent = data.totalObtainedMarks;
+    document.getElementById("print-res-pct").textContent = `${data.overallPct}%`;
+    document.getElementById("print-res-credits").textContent = data.totalCredits;
+    document.getElementById("print-res-gpa").textContent = data.gpa;
+    document.getElementById("print-res-grade").textContent = data.overallLetter.split(" ")[0];
+    document.getElementById("print-res-status").textContent = "PASSED";
+
+    const tbody = document.getElementById("print-res-tbody");
+    if (tbody) {
+      tbody.innerHTML = data.courses.map(c => `
+        <tr class="text-slate-800">
+          <td class="p-1.5 border-r border-slate-300 font-mono font-bold">${c.code}</td>
+          <td class="p-1.5 border-r border-slate-300">${c.title}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.credit}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.fullMarks}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.tc}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.tf}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.pc}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono">${c.pf}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono font-bold">${c.obtained}</td>
+          <td class="p-1.5 border-r border-slate-300 text-center font-mono font-bold text-blue-900">${c.gp}</td>
+          <td class="p-1.5 text-center font-bold">${c.letter}</td>
+        </tr>
+      `).join("");
+    }
+  }
+
+  // ==========================================
+  // 7. Teacher Attendance Portal Controller
+  // ==========================================
+  const ATTENDANCE_ROSTER_DATA = [
+    { roll: "612401", name: "Md. Tanvir Hossain", reg: "1502120001", status: "P", remarks: "" },
+    { roll: "612402", name: "Sadia Sultana", reg: "1502120002", status: "P", remarks: "" },
+    { roll: "612403", name: "Sakib Ahmed", reg: "1502120003", status: "P", remarks: "" },
+    { roll: "612404", name: "Fatema Tuz Zohra", reg: "1502120004", status: "P", remarks: "" },
+    { roll: "612405", name: "Arifur Rahman", reg: "1502120005", status: "A", remarks: "Sick leave notice" },
+    { roll: "612406", name: "Mehedi Hasan", reg: "1502120006", status: "P", remarks: "" },
+    { roll: "612407", name: "Nusrat Jahan", reg: "1502120007", status: "P", remarks: "" },
+    { roll: "612408", name: "Shahriar Kabir", reg: "1502120008", status: "P", remarks: "" },
+    { roll: "612409", name: "Jannatul Ferdous", reg: "1502120009", status: "P", remarks: "" },
+    { roll: "612410", name: "Md. Nayeem Islam", reg: "1502120010", status: "P", remarks: "" },
+    { roll: "612411", name: "Rashedul Islam", reg: "1502120011", status: "L", remarks: "Arrived 15 min late" },
+    { roll: "612412", name: "Farzana Akter", reg: "1502120012", status: "P", remarks: "" },
+    { roll: "612413", name: "Ashikur Rahman", reg: "1502120013", status: "P", remarks: "" },
+    { roll: "612414", name: "Sumaiya Islam", reg: "1502120014", status: "P", remarks: "" },
+    { roll: "612415", name: "Mahmudul Hasan", reg: "1502120015", status: "P", remarks: "" },
+    { roll: "612416", name: "Tasnim Ara", reg: "1502120016", status: "P", remarks: "" },
+    { roll: "612417", name: "Sabbir Hossain", reg: "1502120017", status: "P", remarks: "" },
+    { roll: "612418", name: "Israt Jahan", reg: "1502120018", status: "A", remarks: "Hostel approval" },
+    { roll: "612419", name: "Al Amin", reg: "1502120019", status: "P", remarks: "" },
+    { roll: "612420", name: "Fahim Faisal", reg: "1502120020", status: "P", remarks: "" },
+    { roll: "612421", name: "Afroza Khatun", reg: "1502120021", status: "P", remarks: "" },
+    { roll: "612422", name: "Zahid Hasan", reg: "1502120022", status: "P", remarks: "" },
+    { roll: "612423", name: "Rokeya Begum", reg: "1502120023", status: "P", remarks: "" },
+    { roll: "612424", name: "Kazi Nazmul", reg: "1502120024", status: "P", remarks: "" },
+    { roll: "612425", name: "Shafiul Alam", reg: "1502120025", status: "P", remarks: "" }
+  ];
+
+  let currentTeacherPunchedIn = false;
+
+  function closePrintableAttendanceModal() {
+    const modal = document.getElementById("printable-attendance-modal");
+    const backdrop = document.getElementById("printable-attendance-backdrop");
+    if (modal) modal.classList.add("hidden");
+    if (backdrop) backdrop.classList.add("hidden");
+  }
+
+  function openPrintableAttendanceModal() {
+    const modal = document.getElementById("printable-attendance-modal");
+    const backdrop = document.getElementById("printable-attendance-backdrop");
+    if (modal) modal.classList.remove("hidden");
+    if (backdrop) backdrop.classList.remove("hidden");
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+
+  function initTeacherAttendancePortal() {
+    const clockEl = document.getElementById("attendance-live-clock");
+    const punchBtn = document.getElementById("teacher-punch-btn");
+    const punchStatusText = document.getElementById("teacher-punch-status-text");
+    const punchLoggedTime = document.getElementById("teacher-punch-logged-time");
+
+    const dateInput = document.getElementById("att-date-input");
+    const deptSelect = document.getElementById("att-dept-select");
+    const semSelect = document.getElementById("att-sem-select");
+    const shiftSelect = document.getElementById("att-shift-select");
+    const secSelect = document.getElementById("att-section-select");
+    const subjectSelect = document.getElementById("att-subject-select");
+
+    const bulkPresentBtn = document.getElementById("att-bulk-all-present");
+    const bulkAbsentBtn = document.getElementById("att-bulk-all-absent");
+    const bulkSampleBtn = document.getElementById("att-bulk-sample");
+    const saveSessionBtn = document.getElementById("att-submit-save-btn");
+    const exportCsvBtn = document.getElementById("att-export-csv-btn");
+    const printRosterBtn = document.getElementById("att-print-roster-btn");
+    const clearHistoryBtn = document.getElementById("att-clear-history-btn");
+
+    if (!deptSelect || !subjectSelect) return;
+
+    // 1. Digital Clock
+    function updateClock() {
+      if (clockEl) {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString("en-US", { hour12: true });
+      }
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // 2. Teacher Punch In State
+    const savedPunch = localStorage.getItem("bteb_teacher_punch_status");
+    if (savedPunch) {
+      try {
+        const punchObj = JSON.parse(savedPunch);
+        if (punchObj.punchedIn) {
+          currentTeacherPunchedIn = true;
+          if (punchStatusText) punchStatusText.textContent = "Faculty Punched In";
+          if (punchLoggedTime) punchLoggedTime.textContent = `Active: Since ${punchObj.time}`;
+          if (punchBtn) {
+            punchBtn.classList.remove("bg-emerald-600", "hover:bg-emerald-700");
+            punchBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
+          }
+        }
+      } catch (err) {}
+    }
+
+    if (punchBtn) {
+      punchBtn.addEventListener("click", () => {
+        if (!currentTeacherPunchedIn) {
+          currentTeacherPunchedIn = true;
+          const timeStr = new Date().toLocaleTimeString("en-US", { hour12: true });
+          localStorage.setItem("bteb_teacher_punch_status", JSON.stringify({ punchedIn: true, time: timeStr }));
+          if (punchStatusText) punchStatusText.textContent = "Faculty Punched In";
+          if (punchLoggedTime) punchLoggedTime.textContent = `Active: Since ${timeStr}`;
+          punchBtn.classList.remove("bg-emerald-600", "hover:bg-emerald-700");
+          punchBtn.classList.add("bg-blue-600", "hover:bg-blue-700");
+          showToast(`Faculty punch-in recorded at ${timeStr}.`, "success");
+        } else {
+          currentTeacherPunchedIn = false;
+          localStorage.removeItem("bteb_teacher_punch_status");
+          if (punchStatusText) punchStatusText.textContent = "Faculty Punch In";
+          if (punchLoggedTime) punchLoggedTime.textContent = "Status: Not Punched In";
+          punchBtn.classList.remove("bg-blue-600", "hover:bg-blue-700");
+          punchBtn.classList.add("bg-emerald-600", "hover:bg-emerald-700");
+          showToast("Faculty signed out for the day.", "info");
+        }
+      });
+    }
+
+    // 3. Set Default Date
+    if (dateInput) {
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.value = today;
+    }
+
+    // 4. Populate Department Select
+    if (typeof TECHNOLOGIES_DATA !== "undefined" && Array.isArray(TECHNOLOGIES_DATA)) {
+      deptSelect.innerHTML = TECHNOLOGIES_DATA.map(t =>
+        `<option value="${t.id}" ${t.id === "cst" ? "selected" : ""}>${t.name} (${t.code})</option>`
+      ).join("");
+    }
+
+    // 5. Populate Dynamic Subject Dropdown based on Department & Semester
+    function updateSubjectDropdown() {
+      const deptId = deptSelect ? deptSelect.value : "cst";
+      const sem = semSelect ? parseInt(semSelect.value) : 4;
+      let subjects = [];
+
+      if (typeof getDepartmentSyllabus === "function") {
+        subjects = getDepartmentSyllabus("2022", deptId, sem);
+      }
+
+      if (!subjects || subjects.length === 0) {
+        subjects = [
+          { code: "28541", title: "Object Oriented Programming (Java/Python)" },
+          { code: "28542", title: "Data Structure & Algorithms" },
+          { code: "28543", title: "Operating System & System Administration" },
+          { code: "28544", title: "Web Development & Database Systems" }
+        ];
+      }
+
+      subjectSelect.innerHTML = subjects.map(s =>
+        `<option value="${s.code} - ${s.title}">${s.code} - ${s.title}</option>`
+      ).join("");
+    }
+
+    updateSubjectDropdown();
+
+    if (deptSelect) deptSelect.addEventListener("change", updateSubjectDropdown);
+    if (semSelect) semSelect.addEventListener("change", updateSubjectDropdown);
+
+    // 6. Render Initial Student Attendance Roster
+    renderAttendanceRoster();
+
+    // 7. Bulk Action Buttons
+    if (bulkPresentBtn) {
+      bulkPresentBtn.addEventListener("click", () => {
+        ATTENDANCE_ROSTER_DATA.forEach(s => s.status = "P");
+        renderAttendanceRoster();
+        showToast("Marked all 25 students as Present.", "success");
+      });
+    }
+
+    if (bulkAbsentBtn) {
+      bulkAbsentBtn.addEventListener("click", () => {
+        ATTENDANCE_ROSTER_DATA.forEach(s => s.status = "A");
+        renderAttendanceRoster();
+        showToast("Marked all 25 students as Absent.", "info");
+      });
+    }
+
+    if (bulkSampleBtn) {
+      bulkSampleBtn.addEventListener("click", () => {
+        ATTENDANCE_ROSTER_DATA.forEach((s, idx) => {
+          if (idx === 4 || idx === 17) s.status = "A";
+          else if (idx === 10) s.status = "L";
+          else s.status = "P";
+        });
+        renderAttendanceRoster();
+        showToast("Applied realistic class attendance distribution.", "success");
+      });
+    }
+
+    // 8. Save Session Button
+    if (saveSessionBtn) {
+      saveSessionBtn.addEventListener("click", () => {
+        const stats = computeAttendanceStats();
+        const dateVal = dateInput ? dateInput.value : new Date().toISOString().split("T")[0];
+        const shiftVal = shiftSelect ? shiftSelect.value : "1st Shift";
+        const deptText = deptSelect ? deptSelect.options[deptSelect.selectedIndex].text : "Computer Science";
+        const semVal = semSelect ? semSelect.value : "4";
+        const secVal = secSelect ? secSelect.value : "Section A";
+        const subjVal = subjectSelect ? subjectSelect.value : "General Subject";
+
+        const sessionRecord = {
+          id: Date.now(),
+          date: dateVal,
+          shift: shiftVal,
+          dept: deptText,
+          semester: semVal,
+          section: secVal,
+          subject: subjVal,
+          total: stats.total,
+          present: stats.present,
+          absent: stats.absent,
+          late: stats.late,
+          rate: stats.presentRate,
+          savedAt: new Date().toLocaleTimeString("en-US", { hour12: true })
+        };
+
+        saveAttendanceToStorage(sessionRecord);
+        renderAttendanceHistory();
+        showToast(`Attendance for ${secVal} (${stats.presentRate}% present) saved successfully.`, "success");
+      });
+    }
+
+    // 9. Export CSV Button
+    if (exportCsvBtn) {
+      exportCsvBtn.addEventListener("click", () => {
+        exportAttendanceCSV();
+      });
+    }
+
+    // 10. Print Roster Button
+    if (printRosterBtn) {
+      printRosterBtn.addEventListener("click", () => {
+        populatePrintableAttendance();
+        openPrintableAttendanceModal();
+      });
+    }
+
+    const printCloseBtn = document.getElementById("printable-attendance-close-btn");
+    const printBackdrop = document.getElementById("printable-attendance-backdrop");
+    if (printCloseBtn) printCloseBtn.addEventListener("click", closePrintableAttendanceModal);
+    if (printBackdrop) printBackdrop.addEventListener("click", closePrintableAttendanceModal);
+
+    const printActionBtn = document.getElementById("print-attendance-action-btn");
+    if (printActionBtn) {
+      printActionBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
+
+    // 11. Clear History Button
+    if (clearHistoryBtn) {
+      clearHistoryBtn.addEventListener("click", () => {
+        localStorage.removeItem("bteb_attendance_history");
+        renderAttendanceHistory();
+        showToast("Attendance history cleared.", "info");
+      });
+    }
+
+    // Load initial history
+    renderAttendanceHistory();
+  }
+
+  function computeAttendanceStats() {
+    let present = 0;
+    let absent = 0;
+    let late = 0;
+    const total = ATTENDANCE_ROSTER_DATA.length;
+
+    ATTENDANCE_ROSTER_DATA.forEach(s => {
+      if (s.status === "P") present++;
+      else if (s.status === "A") absent++;
+      else if (s.status === "L") late++;
+    });
+
+    const presentRate = ((present / total) * 100).toFixed(1);
+    const absentRate = ((absent / total) * 100).toFixed(1);
+    const lateRate = ((late / total) * 100).toFixed(1);
+
+    return { total, present, absent, late, presentRate, absentRate, lateRate };
+  }
+
+  function updateAttendanceKPIDisplay() {
+    const stats = computeAttendanceStats();
+
+    const totEl = document.getElementById("att-kpi-total");
+    const presEl = document.getElementById("att-kpi-present");
+    const presPctEl = document.getElementById("att-kpi-present-pct");
+    const absEl = document.getElementById("att-kpi-absent");
+    const absPctEl = document.getElementById("att-kpi-absent-pct");
+    const lateEl = document.getElementById("att-kpi-late");
+    const latePctEl = document.getElementById("att-kpi-late-pct");
+    const quorumEl = document.getElementById("att-kpi-quorum");
+
+    if (totEl) totEl.textContent = stats.total;
+    if (presEl) presEl.textContent = stats.present;
+    if (presPctEl) presPctEl.textContent = `${stats.presentRate}% Rate`;
+    if (absEl) absEl.textContent = stats.absent;
+    if (absPctEl) absPctEl.textContent = `${stats.absentRate}% Rate`;
+    if (lateEl) lateEl.textContent = stats.late;
+    if (latePctEl) latePctEl.textContent = `${stats.lateRate}% Rate`;
+
+    if (quorumEl) {
+      if (parseFloat(stats.presentRate) >= 75.0) {
+        quorumEl.textContent = "Quorum Met";
+        quorumEl.className = "text-2xl font-black font-mono text-emerald-700 mt-0.5 block";
+      } else {
+        quorumEl.textContent = "Below 75%";
+        quorumEl.className = "text-2xl font-black font-mono text-rose-700 mt-0.5 block";
+      }
+    }
+  }
+
+  function renderAttendanceRoster() {
+    const tbody = document.getElementById("att-roster-tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = ATTENDANCE_ROSTER_DATA.map((student, idx) => `
+      <tr class="hover:bg-slate-50/70 transition-colors">
+        <td class="py-2.5 px-3 text-center font-mono text-slate-400">${idx + 1}</td>
+        <td class="py-2.5 px-3 font-mono font-bold text-slate-800">${student.roll}</td>
+        <td class="py-2.5 px-3 font-medium text-slate-900">${student.name}</td>
+        <td class="py-2.5 px-3 font-mono text-slate-500">${student.reg}</td>
+        <td class="py-2.5 px-3 text-center">
+          <div class="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+            <button type="button" class="att-toggle-btn w-7 h-7 rounded text-xs flex items-center justify-center font-bold ${student.status === 'P' ? 'active-present' : 'text-slate-600 hover:bg-slate-200'}" data-index="${idx}" data-status="P" title="Present">P</button>
+            <button type="button" class="att-toggle-btn w-7 h-7 rounded text-xs flex items-center justify-center font-bold ${student.status === 'A' ? 'active-absent' : 'text-slate-600 hover:bg-slate-200'}" data-index="${idx}" data-status="A" title="Absent">A</button>
+            <button type="button" class="att-toggle-btn w-7 h-7 rounded text-xs flex items-center justify-center font-bold ${student.status === 'L' ? 'active-late' : 'text-slate-600 hover:bg-slate-200'}" data-index="${idx}" data-status="L" title="Late">L</button>
+          </div>
+        </td>
+        <td class="py-2.5 px-3">
+          <input type="text" class="w-full px-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 placeholder:text-slate-400 focus:bg-white focus:ring-1 focus:ring-blue-500 att-remark-input" data-index="${idx}" value="${student.remarks}" placeholder="Add note...">
+        </td>
+      </tr>
+    `).join("");
+
+    // Attach Toggle Listeners
+    tbody.querySelectorAll(".att-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const studentIdx = parseInt(btn.dataset.index);
+        const status = btn.dataset.status;
+        ATTENDANCE_ROSTER_DATA[studentIdx].status = status;
+        renderAttendanceRoster();
+      });
+    });
+
+    // Attach Remark Listeners
+    tbody.querySelectorAll(".att-remark-input").forEach(inp => {
+      inp.addEventListener("input", () => {
+        const studentIdx = parseInt(inp.dataset.index);
+        ATTENDANCE_ROSTER_DATA[studentIdx].remarks = inp.value;
+      });
+    });
+
+    updateAttendanceKPIDisplay();
+  }
+
+  function saveAttendanceToStorage(record) {
+    let history = [];
+    try {
+      const stored = localStorage.getItem("bteb_attendance_history");
+      if (stored) history = JSON.parse(stored);
+    } catch (e) {}
+
+    history.unshift(record);
+    if (history.length > 10) history = history.slice(0, 10);
+    localStorage.setItem("bteb_attendance_history", JSON.stringify(history));
+  }
+
+  function renderAttendanceHistory() {
+    const container = document.getElementById("att-history-container");
+    if (!container) return;
+
+    let history = [];
+    try {
+      const stored = localStorage.getItem("bteb_attendance_history");
+      if (stored) history = JSON.parse(stored);
+    } catch (e) {}
+
+    // Default sample entries if none stored
+    if (history.length === 0) {
+      history = [
+        {
+          id: 1,
+          date: "2026-11-09",
+          shift: "1st Shift (Morning)",
+          dept: "Computer Science & Technology (685)",
+          semester: "4",
+          section: "Section A",
+          subject: "28541 - Object Oriented Programming",
+          total: 25,
+          present: 23,
+          absent: 2,
+          late: 0,
+          rate: "92.0",
+          savedAt: "10:30 AM"
+        },
+        {
+          id: 2,
+          date: "2026-11-08",
+          shift: "1st Shift (Morning)",
+          dept: "Computer Science & Technology (685)",
+          semester: "4",
+          section: "Section B",
+          subject: "28542 - Data Structure & Algorithms",
+          total: 25,
+          present: 21,
+          absent: 3,
+          late: 1,
+          rate: "84.0",
+          savedAt: "11:45 AM"
+        }
+      ];
+    }
+
+    container.innerHTML = history.map(item => `
+      <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-800">${item.subject}</span>
+            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono text-[10px] font-bold">${item.section}</span>
+            <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px]">${item.shift}</span>
+          </div>
+          <div class="text-slate-500 mt-1 flex items-center gap-2 text-[11px]">
+            <span>Date: <strong>${item.date}</strong></span>
+            <span>&bull;</span>
+            <span>Present: <strong class="text-emerald-700">${item.present}/${item.total}</strong> (${item.rate}%)</span>
+            <span>&bull;</span>
+            <span class="text-slate-400">Saved: ${item.savedAt}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+          <button type="button" class="btn-history-export px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-[11px] transition-colors" data-id="${item.id}">
+            Export CSV
+          </button>
+        </div>
+      </div>
+    `).join("");
+
+    container.querySelectorAll(".btn-history-export").forEach(btn => {
+      btn.addEventListener("click", () => {
+        exportAttendanceCSV();
+      });
+    });
+  }
+
+  function exportAttendanceCSV() {
+    const dateVal = document.getElementById("att-date-input")?.value || "2026-11-10";
+    const shiftVal = document.getElementById("att-shift-select")?.value || "1st Shift";
+    const deptText = document.getElementById("att-dept-select")?.options[document.getElementById("att-dept-select")?.selectedIndex]?.text || "Computer Science";
+    const semVal = document.getElementById("att-sem-select")?.value || "4";
+    const secVal = document.getElementById("att-section-select")?.value || "Section A";
+    const subjVal = document.getElementById("att-subject-select")?.value || "Subject";
+    const stats = computeAttendanceStats();
+
+    let csvContent = "BANGLADESH TECHNICAL EDUCATION BOARD - CLASS ATTENDANCE REPORT\r\n";
+    csvContent += `"Polytechnic:","Dhaka Polytechnic Institute"\r\n`;
+    csvContent += `"Department:","${deptText}"\r\n`;
+    csvContent += `"Semester:","${semVal}th Semester"\r\n`;
+    csvContent += `"Section:","${secVal}"\r\n`;
+    csvContent += `"Shift:","${shiftVal}"\r\n`;
+    csvContent += `"Subject:","${subjVal}"\r\n`;
+    csvContent += `"Session Date:","${dateVal}"\r\n`;
+    csvContent += `"Faculty:","Engr. Md. Kamrul Islam (Senior Instructor)"\r\n`;
+    csvContent += `\r\n`;
+    csvContent += `"SL","Board Roll","Student Full Name","Registration No","Attendance Status","Faculty Remarks"\r\n`;
+
+    ATTENDANCE_ROSTER_DATA.forEach((s, idx) => {
+      const statusText = s.status === "P" ? "Present" : (s.status === "A" ? "Absent" : "Late");
+      csvContent += `${idx + 1},"${s.roll}","${s.name}","${s.reg}","${statusText}","${s.remarks || ''}"\r\n`;
+    });
+
+    csvContent += `\r\n`;
+    csvContent += `"SUMMARY","Total Enrolled: ${stats.total}","Present: ${stats.present}","Absent: ${stats.absent}","Late: ${stats.late}","Presence Rate: ${stats.presentRate}%"\r\n`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const sanitizedDept = deptText.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 15);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Attendance_${sanitizedDept}_Sem${semVal}_${dateVal}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast("Attendance CSV report exported successfully.", "success");
+  }
+
+  function populatePrintableAttendance() {
+    const dateVal = document.getElementById("att-date-input")?.value || "2026-11-10";
+    const shiftVal = document.getElementById("att-shift-select")?.value || "1st Shift (Morning)";
+    const deptText = document.getElementById("att-dept-select")?.options[document.getElementById("att-dept-select")?.selectedIndex]?.text || "Computer Science & Technology";
+    const semVal = document.getElementById("att-sem-select")?.value || "4";
+    const secVal = document.getElementById("att-section-select")?.value || "Section A";
+    const subjVal = document.getElementById("att-subject-select")?.value || "28541 - Object Oriented Programming";
+    const stats = computeAttendanceStats();
+
+    document.getElementById("print-att-dept").textContent = deptText;
+    document.getElementById("print-att-sem-sec").textContent = `${semVal}th Semester • ${secVal}`;
+    document.getElementById("print-att-shift").textContent = shiftVal;
+    document.getElementById("print-att-subject").textContent = subjVal;
+    document.getElementById("print-att-date").textContent = dateVal;
+    document.getElementById("print-att-total").textContent = stats.total;
+    document.getElementById("print-att-present").textContent = stats.present;
+    document.getElementById("print-att-absent").textContent = stats.absent;
+    document.getElementById("print-att-late").textContent = stats.late;
+    document.getElementById("print-att-rate").textContent = `${stats.presentRate}%`;
+
+    const tbody = document.getElementById("print-att-tbody");
+    if (tbody) {
+      tbody.innerHTML = ATTENDANCE_ROSTER_DATA.map((s, idx) => {
+        const statusText = s.status === "P" ? "Present" : (s.status === "A" ? "Absent" : "Late");
+        const statusClass = s.status === "P" ? "text-emerald-700 font-bold" : (s.status === "A" ? "text-rose-700 font-bold" : "text-amber-700 font-bold");
+        return `
+          <tr class="text-slate-800">
+            <td class="p-1.5 border-r border-slate-300 text-center font-mono">${idx + 1}</td>
+            <td class="p-1.5 border-r border-slate-300 font-mono font-bold">${s.roll}</td>
+            <td class="p-1.5 border-r border-slate-300 font-medium">${s.name}</td>
+            <td class="p-1.5 border-r border-slate-300 font-mono text-slate-600">${s.reg}</td>
+            <td class="p-1.5 border-r border-slate-300 text-center ${statusClass}">${statusText}</td>
+            <td class="p-1.5 border-r border-slate-300 text-center font-mono text-[10px] text-slate-400">${s.status === 'P' ? '✓ Signed' : '-'}</td>
+            <td class="p-1.5 text-slate-600">${s.remarks || '-'}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+  }
+
+  // ==========================================
+  // 8. Toast Notification Helper
   // ==========================================
   function showToast(message, type = "info") {
     const container = document.getElementById("toast-container");
@@ -1365,7 +2355,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.showToast = showToast;
 
   // ==========================================
-  // 10. Smooth Scroll & Mobile Navigation
+  // 9. Smooth Scroll & Mobile Navigation
   // ==========================================
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
@@ -1400,6 +2390,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initDepartmentExplorer();
   initCGPACalculator();
   initNoticeBoard();
+  initBTEBResultPortal();
+  initTeacherAttendancePortal();
   initMobileAppCTA();
   lucide.createIcons();
 

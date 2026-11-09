@@ -89,21 +89,27 @@
         </a>
 
         <!-- Desktop Navigation Links -->
-        <nav class="hidden md:flex items-center gap-1">
-          <a href="#interactive-map" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-            <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i> Map Directory
+        <nav class="hidden lg:flex items-center gap-1">
+          <a href="#interactive-map" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600"></i> Map Directory
           </a>
-          <a href="#notice-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-            <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i> Notice Board
+          <a href="#notice-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-600"></i> Notice Board
           </a>
-          <a href="#departments-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-            <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i> 15 Technologies
+          <a href="#departments-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="book-open" class="w-3.5 h-3.5 text-blue-600"></i> 15 Technologies
           </a>
-          <a href="#cgpa-calculator-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-            <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i> CGPA Calculator
+          <a href="#cgpa-calculator-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="calculator" class="w-3.5 h-3.5 text-blue-600"></i> CGPA Calculator
           </a>
-          <a href="#mobile-app-section" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-            <i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i> Android App
+          <a href="#results-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="award" class="w-3.5 h-3.5 text-blue-600"></i> BTEB Results
+          </a>
+          <a href="#attendance-portal-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-blue-600"></i> Attendance Portal
+          </a>
+          <a href="#mobile-app-section" class="px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5 text-blue-600"></i> Android App
           </a>
         </nav>
 
@@ -114,7 +120,7 @@
           </a>
 
           <!-- Mobile Menu Button -->
-          <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200">
+          <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200">
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
         </div>
@@ -122,11 +128,13 @@
     </div>
 
     <!-- Mobile Dropdown Navigation -->
-    <div id="mobile-nav-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1 shadow-md">
+    <div id="mobile-nav-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1 shadow-md">
       <a href="#interactive-map" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">Map Directory of Polytechnics</a>
       <a href="#notice-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">Notice Board & Job Circulars</a>
       <a href="#departments-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">15 BTEB Technologies</a>
       <a href="#cgpa-calculator-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">CGPA Calculator</a>
+      <a href="#results-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">BTEB Board Results Portal</a>
+      <a href="#attendance-portal-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">Teacher Attendance Portal</a>
       <a href="#mobile-app-section" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100">DiplomaMate App</a>
     </div>
   </header>
@@ -295,7 +303,7 @@
             Notice Board & Career Circulars
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
-            Real-time published examination routines, BTEB board directives, and Sub-Assistant Engineer government job circulars.
+            Real-time published examination schedules, BTEB board directives, and Sub-Assistant Engineer government job circulars.
           </p>
         </div>
 
@@ -311,18 +319,18 @@
       <!-- Notice Cards Grid (4 Clean Responsive Cards) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
-        <!-- Notice 1: Exam Routine -->
+        <!-- Notice 1: Exam Timetable -->
         <div class="notice-item-card edu-card p-5 flex flex-col justify-between hover:border-blue-400 transition-colors" data-category="exam">
           <div>
             <div class="flex items-center justify-between text-[11px] mb-2">
               <span class="px-2.5 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-800">Exam Schedule</span>
               <span class="text-slate-400 font-mono">2026-11-05</span>
             </div>
-            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">Diploma in Engineering 2nd, 4th, 6th & 8th Semester Final Exam Routine</h4>
+            <h4 class="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">Diploma in Engineering 2nd, 4th, 6th & 8th Semester Final Exam Schedule</h4>
             <p class="text-xs text-slate-500 mt-2 line-clamp-3 leading-relaxed">Official BTEB published timetable for all technology theory and practical final examinations.</p>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-100">
-            <button class="view-notice-btn text-xs text-blue-600 hover:underline flex items-center gap-1 font-semibold" data-title="Diploma Semester Final Exam Schedule 2026" data-date="2026-11-05" data-org="Bangladesh Technical Education Board (BTEB)" data-desc="The final examination routine for 2nd, 4th, 6th and 8th semester students of 2016 and 2022 Regulations has been released. Theoretical examinations commence from December 1st, followed by practical assessments.">
+            <button class="view-notice-btn text-xs text-blue-600 hover:underline flex items-center gap-1 font-semibold" data-title="Diploma Semester Final Exam Schedule 2026" data-date="2026-11-05" data-org="Bangladesh Technical Education Board (BTEB)" data-desc="The final examination schedule for 2nd, 4th, 6th and 8th semester students of 2016 and 2022 Regulations has been released. Theoretical examinations commence from December 1st, followed by practical assessments.">
               <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read Notice &rarr;
             </button>
           </div>
@@ -577,9 +585,612 @@
           </button>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Mobile App CTA Banner -->
-      <div id="mobile-app-section" class="max-w-4xl mx-auto edu-card p-8 sm:p-10 border border-slate-200 bg-white mt-10">
+  <!-- ==========================================
+       6. BTEB Result Section / Portal
+       ========================================== -->
+  <section id="results-section" class="py-14 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-200 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold mb-2">
+            <i data-lucide="award" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>BTEB Examination Results Archive</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Diploma Engineering Board Results Portal
+          </h2>
+          <p class="text-sm text-slate-600 mt-1">
+            Access official semester-wise examination grade sheets, course marks, and GPA for 15 technical departments.
+          </p>
+        </div>
+
+        <!-- Regulation / Session Badges -->
+        <div class="flex items-center gap-2 text-xs">
+          <span class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium shadow-sm flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Archive Active: 2016 & 2022 Curricula</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- Search Form Column -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="edu-card p-6 border border-slate-200 bg-white shadow-sm">
+            <h3 class="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+              <i data-lucide="search" class="w-4 h-4 text-blue-600"></i> Student Result Query
+            </h3>
+            <p class="text-xs text-slate-500 mb-5 leading-relaxed">
+              Enter your official 6-digit BTEB Roll number, department, and semester to view verified board results.
+            </p>
+
+            <form id="result-search-form" class="space-y-4">
+              <!-- Regulation Selection -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Curriculum Regulation</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700 hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-600 has-[:checked]:text-white has-[:checked]:border-blue-600">
+                    <input type="radio" name="res-regulation" value="2022" class="sr-only" checked>
+                    <span>2022 Regulation</span>
+                  </label>
+                  <label class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700 hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-600 has-[:checked]:text-white has-[:checked]:border-blue-600">
+                    <input type="radio" name="res-regulation" value="2016" class="sr-only">
+                    <span>2016 Regulation</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Department Selection -->
+              <div>
+                <label for="result-dept-select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Technology / Department</label>
+                <div class="relative">
+                  <select id="result-dept-select" class="w-full pl-3.5 pr-10 py-2.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 transition-colors appearance-none cursor-pointer">
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+              </div>
+
+              <!-- Semester Selection -->
+              <div>
+                <label for="result-sem-select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Examination Semester</label>
+                <div class="relative">
+                  <select id="result-sem-select" class="w-full pl-3.5 pr-10 py-2.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 transition-colors appearance-none cursor-pointer">
+                    <option value="1">1st Semester (First)</option>
+                    <option value="2">2nd Semester (Second)</option>
+                    <option value="3">3rd Semester (Third)</option>
+                    <option value="4" selected>4th Semester (Fourth)</option>
+                    <option value="5">5th Semester (Fifth)</option>
+                    <option value="6">6th Semester (Sixth)</option>
+                    <option value="7">7th Semester (Seventh)</option>
+                    <option value="8">8th Semester (Industrial Attachment)</option>
+                  </select>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+              </div>
+
+              <!-- Roll & Reg Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="result-roll-input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Board Roll No. <span class="text-rose-500">*</span>
+                  </label>
+                  <input type="text" id="result-roll-input" placeholder="e.g. 612450" maxlength="8" class="w-full px-3.5 py-2.5 text-xs font-mono font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition-colors" required>
+                </div>
+
+                <div>
+                  <label for="result-reg-input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Registration No. <span class="text-slate-400 font-normal">(Optional)</span>
+                  </label>
+                  <input type="text" id="result-reg-input" placeholder="e.g. 1502123456" maxlength="12" class="w-full px-3.5 py-2.5 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition-colors">
+                </div>
+              </div>
+
+              <!-- Exam Year Selection -->
+              <div>
+                <label for="result-year-select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Examination Session / Year</label>
+                <div class="relative">
+                  <select id="result-year-select" class="w-full pl-3.5 pr-10 py-2.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 transition-colors appearance-none cursor-pointer">
+                    <option value="2025">Year 2025 (Held in 2026)</option>
+                    <option value="2024" selected>Year 2024</option>
+                    <option value="2023">Year 2023</option>
+                    <option value="2022">Year 2022</option>
+                  </select>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+              </div>
+
+              <!-- Form Buttons -->
+              <div class="pt-2 flex items-center gap-3">
+                <button type="submit" id="result-submit-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                  <i data-lucide="search" class="w-4 h-4"></i> Check Board Result
+                </button>
+                <button type="button" id="result-clear-btn" class="py-2.5 px-4 rounded-xl bg-slate-100 text-slate-600 font-semibold text-xs hover:bg-slate-200 transition-colors">
+                  Reset
+                </button>
+              </div>
+            </form>
+
+            <!-- Quick Demo Sample Rolls -->
+            <div class="mt-6 pt-5 border-t border-slate-200">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-2.5">
+                Quick Demo Samples (Click to load):
+              </span>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" class="sample-roll-btn px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-mono text-[11px] font-semibold border border-blue-200 transition-colors flex items-center gap-1" data-roll="612450" data-dept="cst" data-sem="4" data-reg="2022">
+                  <span>CST 4th Sem (612450)</span>
+                </button>
+                <button type="button" class="sample-roll-btn px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-mono text-[11px] font-semibold border border-emerald-200 transition-colors flex items-center gap-1" data-roll="521834" data-dept="ct" data-sem="6" data-reg="2022">
+                  <span>Civil 6th Sem (521834)</span>
+                </button>
+                <button type="button" class="sample-roll-btn px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-mono text-[11px] font-semibold border border-amber-200 transition-colors flex items-center gap-1" data-roll="684120" data-dept="et" data-sem="2" data-reg="2022">
+                  <span>Electrical 2nd Sem (684120)</span>
+                </button>
+                <button type="button" class="sample-roll-btn px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-mono text-[11px] font-semibold border border-purple-200 transition-colors flex items-center gap-1" data-roll="549321" data-dept="mt" data-sem="5" data-reg="2016">
+                  <span>Mechanical 5th Sem (549321)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Display Card Column -->
+        <div class="lg:col-span-7">
+
+          <!-- Initial Placeholder -->
+          <div id="result-initial-card" class="edu-card p-10 border border-slate-200 bg-white text-center shadow-sm">
+            <div class="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <i data-lucide="file-check-2" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">No Result Selected</h3>
+            <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+              Enter your BTEB board roll number and select your department/semester on the left, or click any of the quick demo buttons to view a full verified academic grade sheet.
+            </p>
+            <div class="mt-6 flex items-center justify-center gap-2">
+              <span class="text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Authenticated BTEB Grading Formula
+              </span>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div id="result-loading-card" class="edu-card p-12 border border-slate-200 bg-white text-center shadow-sm hidden">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-4"></div>
+            <h4 class="text-sm font-bold text-slate-800">Retrieving Official Result...</h4>
+            <p class="text-xs text-slate-500 mt-1">Connecting to BTEB Examination Archive & calculating verified subject marks.</p>
+          </div>
+
+          <!-- Active Result Marksheet Sheet -->
+          <div id="result-output-card" class="edu-card border border-slate-200 bg-white shadow-sm overflow-hidden hidden">
+
+            <!-- Sheet Top Header -->
+            <div class="p-6 bg-slate-900 text-white relative">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                      BTEB OFFICIAL ARCHIVE
+                    </span>
+                    <span id="res-badge-reg-header" class="text-[11px] text-slate-300 font-mono">Curriculum 2022</span>
+                  </div>
+                  <h3 class="text-lg font-bold tracking-tight text-white mt-1">
+                    Bangladesh Technical Education Board, Dhaka
+                  </h3>
+                  <p class="text-xs text-slate-300">
+                    Diploma in Engineering Examination &bull; Official Semester Marksheet
+                  </p>
+                </div>
+                <div class="text-left sm:text-right shrink-0">
+                  <div id="res-status-banner" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-xs font-bold">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span>PASSED</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 font-mono mt-1" id="res-result-pub-date">Issued: November 2026</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Student Profile Information Grid -->
+            <div class="p-6 border-b border-slate-200 bg-slate-50">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Student Name</span>
+                  <span id="res-student-name" class="font-bold text-slate-900 text-sm">Md. Tanvir Hossain</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Roll / Reg Number</span>
+                  <span id="res-roll-display" class="font-mono font-bold text-blue-700 text-sm">612450</span>
+                  <span id="res-reg-display" class="font-mono text-[11px] text-slate-500 block">Reg: 1502123456</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Technology / Dept</span>
+                  <span id="res-technology-name" class="font-bold text-slate-800">Computer Science & Tech</span>
+                  <span id="res-technology-code" class="text-[11px] text-slate-500 block">Code: 685</span>
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Semester & Session</span>
+                  <span id="res-semester-name" class="font-bold text-slate-800">4th Semester</span>
+                  <span id="res-session-display" class="text-[11px] text-slate-500 block">Session 2022-23</span>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="building" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                  <span class="text-slate-500">Institute:</span>
+                  <span id="res-institute-name" class="font-bold text-slate-800">Dhaka Polytechnic Institute</span>
+                </div>
+                <div class="text-[11px] font-mono text-slate-500">
+                  Institute Code: <span id="res-institute-code" class="font-bold text-slate-700">50117</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Performance KPI Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-200 divide-x divide-slate-200 bg-white text-center">
+              <div class="p-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Semester GPA</span>
+                <div class="flex items-center justify-center gap-1.5 mt-0.5">
+                  <span id="res-gpa-val" class="text-2xl font-black font-mono text-blue-700">3.84</span>
+                  <span class="text-xs text-slate-400 font-mono">/ 4.00</span>
+                </div>
+              </div>
+
+              <div class="p-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Letter Grade</span>
+                <div class="mt-1">
+                  <span id="res-grade-val" class="grade-pill grade-pill-aplus text-sm px-3 py-0.5">A+ (Outstanding)</span>
+                </div>
+              </div>
+
+              <div class="p-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Marks</span>
+                <div class="flex items-center justify-center gap-1 mt-0.5 font-mono">
+                  <span id="res-marks-obtained" class="text-lg font-bold text-slate-900">732</span>
+                  <span id="res-marks-total" class="text-xs text-slate-400">/ 850</span>
+                </div>
+                <span id="res-marks-percent" class="text-[10px] text-emerald-600 font-semibold block">86.1% Marks</span>
+              </div>
+
+              <div class="p-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Earned Credits</span>
+                <div class="flex items-center justify-center gap-1 mt-0.5 font-mono">
+                  <span id="res-credits-val" class="text-lg font-bold text-slate-900">21</span>
+                  <span class="text-xs text-slate-400">Credits</span>
+                </div>
+                <span class="text-[10px] text-blue-600 font-semibold block">All Passed</span>
+              </div>
+            </div>
+
+            <!-- Subject-Wise Marks & Grade Table -->
+            <div class="p-6">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <span>Subject-Wise Marks & Grade Breakdown</span>
+                <span class="text-[11px] text-slate-500 font-normal">Graded under BTEB Standard Curve</span>
+              </h4>
+
+              <div class="border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+                <table class="w-full text-left text-xs min-w-[620px]">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold text-[11px] uppercase tracking-wider">
+                      <th class="py-2.5 px-3">Subject Code</th>
+                      <th class="py-2.5 px-3">Subject Name</th>
+                      <th class="py-2.5 px-2 text-center">Credit</th>
+                      <th class="py-2.5 px-2 text-center">Full Marks</th>
+                      <th class="py-2.5 px-2 text-center">TC</th>
+                      <th class="py-2.5 px-2 text-center">TF</th>
+                      <th class="py-2.5 px-2 text-center">PC</th>
+                      <th class="py-2.5 px-2 text-center">PF</th>
+                      <th class="py-2.5 px-2 text-center">Total</th>
+                      <th class="py-2.5 px-2 text-center">Grade Point</th>
+                      <th class="py-2.5 px-3 text-center">Letter Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody id="res-table-body" class="divide-y divide-slate-100 text-slate-700">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                <div class="flex items-center gap-3">
+                  <span><strong>TC:</strong> Theory Cont.</span>
+                  <span><strong>TF:</strong> Theory Final</span>
+                  <span><strong>PC:</strong> Practical Cont.</span>
+                  <span><strong>PF:</strong> Practical Final</span>
+                </div>
+                <div class="font-mono text-emerald-600 font-medium">
+                  Result Status: Officially Verified
+                </div>
+              </div>
+            </div>
+
+            <!-- Sheet Footer Action Bar -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+              <button type="button" id="res-print-marksheet-btn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-1.5">
+                <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF Marksheet
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button type="button" id="res-new-search-btn" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="arrow-left" class="w-4 h-4"></i> Check Another Result
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       7. Teacher Attendance Portal
+       ========================================== -->
+  <section id="attendance-portal-section" class="py-14 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-200 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
+            <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Faculty Management System</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Teacher Class Attendance Portal
+          </h2>
+          <p class="text-sm text-slate-600 mt-1">
+            Conduct daily polytechnic roll-calls, track student presence rates, export CSV reports, and print verified attendance rosters.
+          </p>
+        </div>
+
+        <!-- Teacher Digital Clock & Punch In -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 font-mono text-xs flex items-center gap-2 shadow-sm">
+            <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
+            <span id="attendance-live-clock" class="font-bold">--:--:-- --</span>
+          </div>
+
+          <button id="teacher-punch-btn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span id="teacher-punch-status-text">Faculty Punch In</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Instructor Info Card -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            <i data-lucide="user-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-900 text-sm">Engr. Md. Kamrul Islam</span>
+              <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">Faculty Member</span>
+            </div>
+            <span class="text-xs text-slate-500 block">Senior Instructor &bull; Department of Computer Science & Technology</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs text-slate-600">
+          <span class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium">Campus: Dhaka Polytechnic Institute</span>
+          <span id="teacher-punch-logged-time" class="text-emerald-700 font-mono font-semibold">Status: Not Punched In</span>
+        </div>
+      </div>
+
+      <!-- Session Parameters & Class Configuration Form -->
+      <div class="edu-card p-6 border border-slate-200 bg-white mb-8 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-blue-600"></i> Class Session Parameters
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+
+          <!-- Date -->
+          <div>
+            <label for="att-date-input" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Session Date</label>
+            <input type="date" id="att-date-input" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium">
+          </div>
+
+          <!-- Shift -->
+          <div>
+            <label for="att-shift-select" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Shift</label>
+            <div class="relative">
+              <select id="att-shift-select" class="w-full pl-3 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium appearance-none cursor-pointer">
+                <option value="1st Shift (Morning)" selected>1st Shift (Morning)</option>
+                <option value="2nd Shift (Day)">2nd Shift (Day)</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Department -->
+          <div>
+            <label for="att-dept-select" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Department</label>
+            <div class="relative">
+              <select id="att-dept-select" class="w-full pl-3 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium appearance-none cursor-pointer">
+                <!-- Dynamically populated from TECHNOLOGIES_DATA -->
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Semester -->
+          <div>
+            <label for="att-sem-select" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Semester</label>
+            <div class="relative">
+              <select id="att-sem-select" class="w-full pl-3 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium appearance-none cursor-pointer">
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4" selected>4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Section -->
+          <div>
+            <label for="att-section-select" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Section</label>
+            <div class="relative">
+              <select id="att-section-select" class="w-full pl-3 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium appearance-none cursor-pointer">
+                <option value="Section A" selected>Section A</option>
+                <option value="Section B">Section B</option>
+                <option value="Section C">Section C</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Subject (Dynamically Loaded based on Dept & Sem) -->
+          <div>
+            <label for="att-subject-select" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Subject / Course</label>
+            <div class="relative">
+              <select id="att-subject-select" class="w-full pl-3 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium appearance-none cursor-pointer">
+                <!-- Dynamically populated from getDepartmentSyllabus() -->
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Attendance KPI Stats Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Students</span>
+          <span id="att-kpi-total" class="text-2xl font-black font-mono text-slate-800 mt-0.5 block">25</span>
+          <span class="text-[10px] text-slate-400">Enrolled in Roster</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-sm text-center">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">Present</span>
+          <span id="att-kpi-present" class="text-2xl font-black font-mono text-emerald-700 mt-0.5 block">22</span>
+          <span id="att-kpi-present-pct" class="text-[10px] text-emerald-600 font-semibold">88.0% Rate</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 shadow-sm text-center">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 block">Absent</span>
+          <span id="att-kpi-absent" class="text-2xl font-black font-mono text-rose-700 mt-0.5 block">2</span>
+          <span id="att-kpi-absent-pct" class="text-[10px] text-rose-600 font-semibold">8.0% Rate</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-sm text-center">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">Late</span>
+          <span id="att-kpi-late" class="text-2xl font-black font-mono text-amber-700 mt-0.5 block">1</span>
+          <span id="att-kpi-late-pct" class="text-[10px] text-amber-600 font-semibold">4.0% Rate</span>
+        </div>
+
+        <div class="col-span-2 sm:col-span-1 p-4 rounded-xl bg-blue-50 border border-blue-200 shadow-sm text-center">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 block">Presence Quorum</span>
+          <span id="att-kpi-quorum" class="text-2xl font-black font-mono text-blue-700 mt-0.5 block">Met</span>
+          <span class="text-[10px] text-blue-600 font-semibold">&gt; 75% Requirement</span>
+        </div>
+      </div>
+
+      <!-- Roster Action Toolbar -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-3">
+        <!-- Quick Bulk Marks -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold text-slate-700 mr-1">Quick Mark:</span>
+          <button type="button" id="att-bulk-all-present" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1 shadow-sm">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i> All Present
+          </button>
+          <button type="button" id="att-bulk-all-absent" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors flex items-center gap-1 shadow-sm">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i> All Absent
+          </button>
+          <button type="button" id="att-bulk-sample" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition-colors flex items-center gap-1">
+            <i data-lucide="shuffle" class="w-3.5 h-3.5 text-blue-600"></i> Sample Spread
+          </button>
+        </div>
+
+        <!-- Export & Print Actions -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="att-submit-save-btn" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="save" class="w-4 h-4"></i> Save & Submit Session
+          </button>
+          <button type="button" id="att-export-csv-btn" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4 text-emerald-600"></i> Export CSV
+          </button>
+          <button type="button" id="att-print-roster-btn" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5">
+            <i data-lucide="printer" class="w-4 h-4 text-blue-600"></i> Print Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Student Attendance Roster Table -->
+      <div class="edu-card border border-slate-200 bg-white shadow-sm overflow-hidden mb-8">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Class Attendance Roster (25 Students)
+            </h4>
+            <span class="text-[11px] text-slate-500">Click [P] for Present, [A] for Absent, [L] for Late to toggle individual status.</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">P = Present</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">A = Absent</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">L = Late</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+          <table class="w-full text-left text-xs min-w-[650px]">
+            <thead class="sticky top-0 bg-white border-b border-slate-200 shadow-sm text-slate-600 font-bold text-[11px] uppercase tracking-wider">
+              <tr>
+                <th class="py-2.5 px-3 text-center w-12">#</th>
+                <th class="py-2.5 px-3 w-28">Roll No.</th>
+                <th class="py-2.5 px-3">Student Full Name</th>
+                <th class="py-2.5 px-3 w-32">Reg. No.</th>
+                <th class="py-2.5 px-3 text-center w-48">Status Toggle</th>
+                <th class="py-2.5 px-3">Faculty Remark / Notes</th>
+              </tr>
+            </thead>
+            <tbody id="att-roster-tbody" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Dynamically populated via JS with 25 realistic students -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Saved Attendance Sessions History -->
+      <div class="edu-card p-6 border border-slate-200 bg-white shadow-sm">
+        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i data-lucide="history" class="w-4 h-4 text-blue-600"></i> Recent Attendance Records (Browser Storage)
+          </span>
+          <button type="button" id="att-clear-history-btn" class="text-[11px] text-rose-600 hover:underline">Clear History</button>
+        </h4>
+
+        <div id="att-history-container" class="space-y-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       8. DiplomaMate Android Application (Student Mobile Toolkit)
+       ========================================== -->
+  <section id="mobile-app-section" class="py-14 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto edu-card p-8 sm:p-10 border border-slate-200 bg-white shadow-sm">
         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
           <div class="max-w-xl">
             <span class="text-xs font-bold uppercase tracking-wider text-blue-600 font-mono">Student Mobile Toolkit</span>
@@ -587,7 +1198,7 @@
               DiplomaMate Android Application
             </h3>
             <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-              Carry the entire BTEB 2016 & 2022 syllabus in your pocket. Access previous years' solved board question papers, monitor class routines offline, and receive instant exam schedule alerts.
+              Carry the complete BTEB 2016 & 2022 syllabus in your pocket. Access previous years' solved board question papers, explore semester-wise department booklists, compute semester CGPA, and verify polytechnic contact directories offline.
             </p>
 
             <div class="flex flex-wrap items-center gap-3 mt-6">
@@ -608,12 +1219,11 @@
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
   <!-- ==========================================
-       8. Professional Academic Footer & Verified Contact
+       9. Professional Academic Footer & Verified Contact
        ========================================== -->
   <footer class="bg-white border-t border-slate-200 py-12 text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -640,6 +1250,8 @@
             <li><a href="#notice-section" class="hover:text-blue-600 transition-colors">Notice Board & Circulars</a></li>
             <li><a href="#departments-section" class="hover:text-blue-600 transition-colors">15 BTEB Technology Syllabi</a></li>
             <li><a href="#cgpa-calculator-section" class="hover:text-blue-600 transition-colors">BTEB Official CGPA Calculator</a></li>
+            <li><a href="#results-section" class="hover:text-blue-600 transition-colors">BTEB Board Results Portal</a></li>
+            <li><a href="#attendance-portal-section" class="hover:text-blue-600 transition-colors">Teacher Attendance Portal</a></li>
             <li><a href="#mobile-app-section" class="hover:text-blue-600 transition-colors">DiplomaMate Android App</a></li>
           </ul>
         </div>
@@ -1095,7 +1707,203 @@
   </div>
 
   <!-- ==========================================
-       16. Toast Notification Container
+       16. Printable BTEB Result Marksheet Modal
+       ========================================== -->
+  <div id="printable-result-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden transition-opacity no-print"></div>
+
+  <div id="printable-result-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 sm:p-8 shadow-2xl overflow-y-auto">
+    <!-- Screen Header (Hidden when printing) -->
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-6 no-print">
+      <div>
+        <span class="text-[10px] uppercase font-bold text-blue-600 font-mono">BTEB Official Format</span>
+        <h3 class="text-base font-bold text-slate-900">Printable Board Marksheet & Grade Sheet</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="print-result-action-btn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
+        </button>
+        <button id="printable-result-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Official Printable Marksheet Document Area -->
+    <div id="printable-result-doc" class="bg-white p-4 sm:p-6 border border-slate-300 rounded-xl">
+      <!-- Document Header -->
+      <div class="text-center pb-4 border-b-2 border-slate-800 mb-4">
+        <h2 class="text-lg sm:text-xl font-bold uppercase tracking-wide text-slate-900">
+          BANGLADESH TECHNICAL EDUCATION BOARD
+        </h2>
+        <p class="text-xs text-slate-700 font-medium">Agargaon, Sher-e-Bangla Nagar, Dhaka-1207, Bangladesh</p>
+        <div class="inline-block mt-2 px-4 py-1 rounded bg-slate-100 border border-slate-300 text-xs font-bold uppercase tracking-wider text-slate-800">
+          ACADEMIC TRANSCRIPT & SEMESTER GRADE REPORT
+        </div>
+        <p class="text-[11px] font-mono text-slate-600 mt-1">Diploma in Engineering &bull; <span id="print-res-curriculum">Curriculum 2022</span></p>
+      </div>
+
+      <!-- Student Identification Box -->
+      <div class="grid grid-cols-2 gap-3 text-xs border border-slate-300 p-3 rounded-lg mb-4 bg-slate-50/50">
+        <div>
+          <div><span class="text-slate-500 font-medium">Student Name:</span> <strong id="print-res-name" class="text-slate-900">Md. Tanvir Hossain</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Board Roll No:</span> <strong id="print-res-roll" class="font-mono text-blue-800">612450</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Registration No:</span> <strong id="print-res-reg" class="font-mono text-slate-800">1502123456</strong></div>
+        </div>
+        <div>
+          <div><span class="text-slate-500 font-medium">Institute:</span> <strong id="print-res-institute" class="text-slate-900">Dhaka Polytechnic Institute</strong> (<span id="print-res-inst-code" class="font-mono font-bold">50117</span>)</div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Technology:</span> <strong id="print-res-tech" class="text-slate-900">Computer Science & Technology</strong> (<span id="print-res-tech-code" class="font-mono font-bold">685</span>)</div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Semester / Session:</span> <strong id="print-res-semester" class="text-slate-900">4th Semester</strong> &bull; <span id="print-res-session" class="font-mono">2022-23</span></div>
+        </div>
+      </div>
+
+      <!-- Subject Table -->
+      <table class="w-full text-left text-xs border border-slate-300 mb-4">
+        <thead>
+          <tr class="bg-slate-100 border-b border-slate-300 text-[10px] font-bold uppercase tracking-wider text-slate-700">
+            <th class="p-2 border-r border-slate-300">Code</th>
+            <th class="p-2 border-r border-slate-300">Subject Title</th>
+            <th class="p-2 border-r border-slate-300 text-center">Credit</th>
+            <th class="p-2 border-r border-slate-300 text-center">Full Marks</th>
+            <th class="p-2 border-r border-slate-300 text-center">TC</th>
+            <th class="p-2 border-r border-slate-300 text-center">TF</th>
+            <th class="p-2 border-r border-slate-300 text-center">PC</th>
+            <th class="p-2 border-r border-slate-300 text-center">PF</th>
+            <th class="p-2 border-r border-slate-300 text-center">Obtained</th>
+            <th class="p-2 border-r border-slate-300 text-center">GP</th>
+            <th class="p-2 text-center">Grade</th>
+          </tr>
+        </thead>
+        <tbody id="print-res-tbody" class="divide-y divide-slate-200">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+
+      <!-- Summary & Result Standing -->
+      <div class="flex items-center justify-between p-3 rounded-lg border border-slate-300 bg-slate-50 mb-6 text-xs">
+        <div>
+          <div>Total Full Marks: <strong id="print-res-full-marks" class="font-mono">850</strong> | Total Obtained: <strong id="print-res-obtained-marks" class="font-mono text-blue-800">732</strong> (<span id="print-res-pct">86.1%</span>)</div>
+          <div class="mt-0.5">Total Credits Earned: <strong id="print-res-credits" class="font-mono">21</strong></div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs">Semester Grade Point Average (GPA): <strong id="print-res-gpa" class="text-base font-bold font-mono text-blue-900">3.84</strong> / 4.00</div>
+          <div class="text-xs font-bold text-emerald-700 uppercase">Result Status: <span id="print-res-status">PASSED</span> (Letter Grade: <span id="print-res-grade">A+</span>)</div>
+        </div>
+      </div>
+
+      <!-- Signatures Footer -->
+      <div class="grid grid-cols-3 gap-4 pt-10 text-center text-xs text-slate-700 border-t border-slate-300 mt-6">
+        <div>
+          <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+          <span class="font-medium">Prepared by</span>
+        </div>
+        <div>
+          <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+          <span class="font-medium">Compared by</span>
+        </div>
+        <div>
+          <div class="w-36 border-b border-slate-800 mx-auto mb-1"></div>
+          <strong class="text-slate-900 block font-bold">Controller of Examinations</strong>
+          <span class="text-[10px] text-slate-500">Bangladesh Technical Education Board</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       17. Printable Teacher Class Attendance Roster Modal
+       ========================================== -->
+  <div id="printable-attendance-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden transition-opacity no-print"></div>
+
+  <div id="printable-attendance-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] z-50 bg-white rounded-2xl border border-slate-200 hidden p-6 sm:p-8 shadow-2xl overflow-y-auto">
+    <!-- Screen Header (Hidden when printing) -->
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-6 no-print">
+      <div>
+        <span class="text-[10px] uppercase font-bold text-emerald-600 font-mono">BTEB Faculty Management</span>
+        <h3 class="text-base font-bold text-slate-900">Printable Daily Class Attendance Record</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="print-attendance-action-btn" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="printer" class="w-4 h-4"></i> Print / Save PDF
+        </button>
+        <button id="printable-attendance-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Official Printable Attendance Sheet Document Area -->
+    <div id="printable-attendance-doc" class="bg-white p-4 sm:p-6 border border-slate-300 rounded-xl">
+      <!-- Document Header -->
+      <div class="text-center pb-4 border-b-2 border-slate-800 mb-4">
+        <h2 class="text-lg sm:text-xl font-bold uppercase tracking-wide text-slate-900">
+          BANGLADESH TECHNICAL EDUCATION BOARD
+        </h2>
+        <p class="text-xs text-slate-700 font-medium">GOVERNMENT POLYTECHNIC INSTITUTE &bull; DAILY ATTENDANCE RECORD</p>
+        <div class="inline-block mt-2 px-4 py-1 rounded bg-slate-100 border border-slate-300 text-xs font-bold uppercase tracking-wider text-slate-800">
+          OFFICIAL CLASS ROLL-CALL SHEET
+        </div>
+      </div>
+
+      <!-- Class Session Information Box -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs border border-slate-300 p-3 rounded-lg mb-4 bg-slate-50/50">
+        <div>
+          <div><span class="text-slate-500 font-medium">Department:</span> <strong id="print-att-dept" class="text-slate-900">Computer Science & Tech</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Semester / Section:</span> <strong id="print-att-sem-sec" class="text-slate-900">4th Semester &bull; Section A</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Shift:</span> <strong id="print-att-shift" class="text-slate-900">1st Shift (Morning)</strong></div>
+        </div>
+        <div>
+          <div><span class="text-slate-500 font-medium">Course / Subject:</span> <strong id="print-att-subject" class="text-slate-900">28541 - Data Structure & Algorithms</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Session Date:</span> <strong id="print-att-date" class="font-mono text-slate-900">2026-11-10</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Faculty Member:</span> <strong class="text-slate-900">Engr. Md. Kamrul Islam</strong></div>
+        </div>
+        <div>
+          <div><span class="text-slate-500 font-medium">Total Enrolled:</span> <strong id="print-att-total" class="font-mono text-slate-900">25</strong></div>
+          <div class="mt-1"><span class="text-emerald-700 font-medium">Present:</span> <strong id="print-att-present" class="font-mono text-emerald-800">22</strong> | <span class="text-rose-700 font-medium">Absent:</span> <strong id="print-att-absent" class="font-mono text-rose-800">2</strong> | <span class="text-amber-700 font-medium">Late:</span> <strong id="print-att-late" class="font-mono text-amber-800">1</strong></div>
+          <div class="mt-1"><span class="text-slate-500 font-medium">Presence Rate:</span> <strong id="print-att-rate" class="font-mono text-blue-800">88.0%</strong></div>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <table class="w-full text-left text-xs border border-slate-300 mb-6">
+        <thead>
+          <tr class="bg-slate-100 border-b border-slate-300 text-[10px] font-bold uppercase tracking-wider text-slate-700">
+            <th class="p-2 border-r border-slate-300 text-center w-10">#</th>
+            <th class="p-2 border-r border-slate-300 w-24">Roll No.</th>
+            <th class="p-2 border-r border-slate-300">Student Name</th>
+            <th class="p-2 border-r border-slate-300 w-28">Reg No.</th>
+            <th class="p-2 border-r border-slate-300 text-center w-20">Status</th>
+            <th class="p-2 border-r border-slate-300 text-center w-28">Signature</th>
+            <th class="p-2">Teacher Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="print-att-tbody" class="divide-y divide-slate-200">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+
+      <!-- Signatures Footer -->
+      <div class="grid grid-cols-3 gap-4 pt-10 text-center text-xs text-slate-700 border-t border-slate-300 mt-6">
+        <div>
+          <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+          <span class="font-medium text-slate-900 block font-bold">Course Teacher</span>
+          <span class="text-[10px] text-slate-500">Engr. Md. Kamrul Islam</span>
+        </div>
+        <div>
+          <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+          <span class="font-medium text-slate-900 block font-bold">Head of Department</span>
+          <span class="text-[10px] text-slate-500">Department of CST</span>
+        </div>
+        <div>
+          <div class="w-36 border-b border-slate-800 mx-auto mb-1"></div>
+          <strong class="text-slate-900 block font-bold">Principal / Vice-Principal</strong>
+          <span class="text-[10px] text-slate-500">Government Polytechnic Institute</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       18. Toast Notification Container
        ========================================== -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
